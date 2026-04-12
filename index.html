@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>雅思备考工具 IELTS Prep Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #2563eb;
+    --primary-light: #3b82f6;
+    --primary-dark: #1d4ed8;
+    --secondary: #0ea5e9;
+    --accent: #6366f1;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --bg: #f0f4ff;
+    --surface: #ffffff;
+    --surface2: #f8fafc;
+    --surface3: #e2e8f0;
+    --text: #1e293b;
+    --text2: #475569;
+    --text3: #94a3b8;
+    --border: #e2e8f0;
+    --shadow: 0 4px 24px rgba(37,99,235,0.08);
+    --shadow-lg: 0 8px 40px rgba(37,99,235,0.14);
+    --radius: 16px;
+    --radius-sm: 8px;
+    --transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+  }
+  body.dark {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface2: #162032;
+    --surface3: #334155;
+    --text: #f1f5f9;
+    --text2: #cbd5e1;
+    --text3: #64748b;
+    --border: #334155;
+    --shadow: 0 4px 24px rgba(0,0,0,0.3);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.4);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: var(--transition);
+    line-height: 1.6;
+  }
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--secondary) 100%);
+    padding: 0 24px;
+    box-shadow: 0 2px 20px rgba(37,99,235,0.3);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+  .logo-icon {
+    width: 38px; height: 38px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+  }
+  .logo-sub { font-size: 0.75rem; opacity: 0.8; font-weight: 400; }
+  .dark-toggle {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: var(--transition);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .dark-toggle:hover { background: rgba(255,255,255,0.25); }
+  /* Nav Tabs */
+  .nav-wrap {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 64px;
+    z-index: 90;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .nav-tabs {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 0 16px;
+  }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .nav-tab {
+    padding: 16px 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text2);
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    transition: var(--transition);
+    display: flex; align-items: center; gap: 6px;
+    user-select: none;
+  }
+  .nav-tab:hover { color: var(--primary); }
+  .nav-tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+  /* Main Content */
+  .main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 60px; }
+  .section { display: none; }
+  .section.active { display: block; }
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .card-sm { padding: 20px; }
+  /* Section Title */
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-sub {
+    color: var(--text2);
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+  }
+  /* Vocab */
+  .vocab-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .stat-box {
+    flex: 1; min-width: 100px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    text-align: center;
+  }
+  .stat-box .val {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary);
+    line-height: 1;
+  }
+  .stat-box .lbl { font-size: 0.78rem; color: var(--text2); margin-top: 4px; }
+  .category-filter {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;
+  }
+  .filter-btn {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: var(--transition);
+  }
+  .filter-btn.active, .filter-btn:hover {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+  }
+  .flashcard-wrap { perspective: 1000px; margin: 0 auto 24px; max-width: 680px; }
+  .flashcard {
+    width: 100%;
+    min-height: 300px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4,0,0.2,1);
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .fc-face {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    min-height: 300px;
+    backface-visibility: hidden;
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 36px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+  }
+  .fc-front {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    color: #fff;
+  }
+  .fc-back {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    transform: rotateY(180deg);
+  }
+  .fc-word {
+    font-size: 2.4rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 10px;
+  }
+  .fc-category {
+    font-size: 0.8rem;
+    background: rgba(255,255,255,0.2);
+    padding: 4px 12px;
+    border-radius: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .fc-hint { opacity: 0.75; font-size: 0.9rem; margin-top: 20px; }
+  .fc-pos {
+    font-size: 0.8rem;
+    color: var(--primary);
+    background: rgba(37,99,235,0.08);
+    padding: 3px 10px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .fc-def {
+    font-size: 1.05rem;
+    color: var(--text);
+    font-weight: 500;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .fc-zh {
+    font-size: 0.95rem;
+    color: var(--text2);
+    margin-bottom: 16px;
+  }
+  .fc-example {
+    font-size: 0.88rem;
+    color: var(--text2);
+    font-style: italic;
+    background: var(--surface2);
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--primary);
+    text-align: left;
+    width: 100%;
+  }
+  .vocab-actions {
+    display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px;
+  }
+  .btn {
+    padding: 10px 22px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: var(--transition);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-success:hover { background: #059669; transform: translateY(-1px); }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:hover { background: #dc2626; transform: translateY(-1px); }
+  .btn-outline {
+    background: transparent;
+    border: 1.5px solid var(--border);
+    color: var(--text2);
+  }
+  .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+  .btn-warning { background: var(--warning); color: #fff; }
+  .btn-warning:hover { background: #d97706; }
+  .progress-bar-wrap {
+    background: var(--surface3);
+    border-radius: 8px;
+    height: 8px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 8px;
+    transition: width 0.5s ease;
+  }
+  .progress-txt { font-size: 0.82rem; color: var(--text3); text-align: right; }
+  /* Writing */
+  .writing-tabs { display: flex; gap: 0; margin-bottom: 24px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+  .writing-tab {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    background: var(--surface2);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text2);
+    transition: var(--transition);
+    border: none;
+  }
+  .writing-tab.active { background: var(--primary); color: #fff; }
+  .writing-content { display: none; }
+  .writing-content.active { display: block; }
+  .prompt-box {
+    background: linear-gradient(135deg, rgba(37,99,235,0.05), rgba(99,102,241,0.05));
+    border: 1px solid rgba(37,99,235,0.15);
+    border-radius: var(--radius-sm);
+    padding: 18px;
+    margin-bottom: 18px;
+  }
+  .prompt-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .topic-selector {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;
+  }
+  .topic-btn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 0.82rem;
+    transition: var(--transition);
+  }
+  .topic-btn.active, .topic-btn:hover { border-color: var(--primary); color: var(--primary); background: rgba(37,99,235,0.06); }
+  .template-box {
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    padding: 18px;
+    border: 1px solid var(--border);
+    margin-bottom: 18px;
+  }
+  .template-box h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .template-step {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+    align-items: flex-start;
+  }
+  .step-num {
+    min-width: 24px; height: 24px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step-content { font-size: 0.88rem; color: var(--text2); line-height: 1.5; }
+  .step-content strong { color: var(--text); }
+  textarea.writing-area {
+    width: 100%;
+    min-height: 240px;
+    padding: 16px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.92rem;
+    resize: vertical;
+    transition: var(--transition);
+    line-height: 1.7;
+  }
+  textarea.writing-area:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+  }
+  .word-counter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-size: 0.85rem;
+  }
+  .wc-num { font-weight: 700; font-size: 1.1rem; }
+  .wc-num.low { color: var(--danger); }
+  .wc-num.ok { color: var(--success); }
+  .wc-bar-wrap {
+    flex: 1;
+    margin: 0 16px;
+    background: var(--surface3);
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+  }
+  .wc-bar { height: 100%; border-radius: 4px; transition: width 0.3s; }
+  .wc-bar.low { background: var(--danger); }
+  .wc-bar.ok { background: var(--success); }
+  /* Speaking */
+  .speaking-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  .part-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .part-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 12px;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .q-item {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+    color: var(--text2);
+    display: flex;
+    gap: 8px;
+  }
+  .q-item:last-child { border-bottom: none; }
+  .q-item::before { content: "▸"; color: var(--primary); flex-shrink: 0; }
+  .cue-card {
+    background: var(--surface);
+    border: 2px solid var(--primary);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .cue-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .cue-points { margin-bottom: 16px; }
+  .cue-point {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 0.88rem;
+    color: var(--text2);
+  }
+  .cue-point::before { content: "•"; color: var(--primary); font-weight: 700; }
+  .timer-section { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  .timer-display {
+    font-size: 3rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--primary);
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 32px;
+    min-width: 160px;
+    text-align: center;
+    transition: color 0.3s;
+  }
+  .timer-display.warning { color: var(--warning); }
+  .timer-display.danger { color: var(--danger); }
+  .timer-controls { display: flex; flex-direction: column; gap: 10px; }
+  .timer-label { font-size: 0.82rem; color: var(--text3); text-align: center; }
+  /* Reading */
+  .passage-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    font-size: 0.9rem;
+    line-height: 1.85;
+    color: var(--text2);
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+  }
+  .passage-box p { margin-bottom: 14px; }
+  .passage-box::-webkit-scrollbar { width: 6px; }
+  .passage-box::-webkit-scrollbar-track { background: var(--surface3); border-radius: 3px; }
+  .passage-box::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 3px; }
+  .q-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px 20px;
+    margin-bottom: 12px;
+  }
+  .q-text { font-size: 0.9rem; font-weight: 500; color: var(--text); margin-bottom: 12px; }
+  .q-options { display: flex; gap: 10px; flex-wrap: wrap; }
+  .q-opt {
+    padding: 7px 18px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: var(--transition);
+    color: var(--text2);
+  }
+  .q-opt:hover { border-color: var(--primary); color: var(--primary); }
+  .q-opt.selected-true { background: var(--success); border-color: var(--success); color: #fff; }
+  .q-opt.selected-false { background: var(--danger); border-color: var(--danger); color: #fff; }
+  .q-opt.selected-ng { background: var(--warning); border-color: var(--warning); color: #fff; }
+  .q-feedback {
+    margin-top: 10px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    display: none;
+  }
+  .q-feedback.correct { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #059669; }
+  .q-feedback.wrong { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #dc2626; }
+  /* Listening */
+  .tip-card {
+    display: flex;
+    gap: 16px;
+    padding: 18px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 14px;
+  }
+  .tip-icon {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+  }
+  .tip-content h4 { font-size: 0.95rem; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .tip-content p { font-size: 0.85rem; color: var(--text2); line-height: 1.6; }
+  .trap-box {
+    border-left: 4px solid var(--warning);
+    background: rgba(245,158,11,0.06);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+  }
+  .trap-box h4 { font-size: 0.9rem; font-weight: 700; color: var(--warning); margin-bottom: 6px; }
+  .trap-box p { font-size: 0.85rem; color: var(--text2); margin-bottom: 6px; }
+  .trap-example { font-style: italic; background: var(--surface); padding: 8px 12px; border-radius: 6px; font-size: 0.83rem; color: var(--text2); }
+  /* Grid layouts */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+  /* Misc */
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: rgba(37,99,235,0.1);
+    color: var(--primary);
+  }
+  .badge.verb { background: rgba(99,102,241,0.1); color: var(--accent); }
+  .badge.adj { background: rgba(16,185,129,0.1); color: var(--success); }
+  .badge.noun { background: rgba(245,158,11,0.1); color: var(--warning); }
+  .hint-box {
+    background: rgba(37,99,235,0.04);
+    border: 1px dashed rgba(37,99,235,0.2);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    font-size: 0.85rem;
+    color: var(--text2);
+    margin-top: 12px;
+  }
+  .hint-box strong { color: var(--primary); }
+  .model-toggle {
+    font-size: 0.82rem;
+    color: var(--primary);
+    cursor: pointer;
+    text-decoration: underline;
+    user-select: none;
+    margin-top: 8px;
+    display: inline-block;
+  }
+  .model-answer {
+    display: none;
+    margin-top: 10px;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    font-size: 0.87rem;
+    color: var(--text2);
+    line-height: 1.65;
+    border: 1px solid var(--border);
+  }
+  .model-answer.visible { display: block; }
+  .cue-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .cue-counter { font-size: 0.85rem; color: var(--text3); }
+  .reading-score {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    text-align: center;
+    margin-bottom: 20px;
+    display: none;
+  }
+  .reading-score .big { font-size: 2rem; font-weight: 700; color: var(--primary); }
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+  .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tag {
+    padding: 4px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 0.8rem;
+    color: var(--text2);
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .cue-card-wrap { display: none; }
+  .cue-card-wrap.active { display: block; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">📚</div>
+      <div>
+        <div>雅思备考工具</div>
+        <div class="logo-sub">IELTS Academic Preparation</div>
+      </div>
+    </div>
+    <button class="dark-toggle" onclick="toggleDark()">
+      <span id="dark-icon">🌙</span>
+      <span id="dark-txt">深色模式</span>
+    </button>
+  </div>
+</header>
+
+<div class="nav-wrap">
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="switchTab('vocab')">📖 词汇练习</div>
+    <div class="nav-tab" onclick="switchTab('writing')">✍️ 写作练习</div>
+    <div class="nav-tab" onclick="switchTab('speaking')">🎤 口语话题</div>
+    <div class="nav-tab" onclick="switchTab('reading')">📄 阅读技巧</div>
+    <div class="nav-tab" onclick="switchTab('listening')">🎧 听力技巧</div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ===== VOCAB ===== -->
+<div id="tab-vocab" class="section active">
+  <div class="section-header">
+    <div>
+      <div class="section-title">📖 词汇练习</div>
+      <div class="section-sub">雅思学术词汇闪卡练习 · 点击卡片翻转查看释义</div>
+    </div>
+    <button class="btn btn-outline" onclick="resetVocab()">🔄 重置</button>
+  </div>
+
+  <div class="vocab-stats">
+    <div class="stat-box">
+      <div class="val" id="v-correct">0</div>
+      <div class="lbl">✅ 答对</div>
+    </div>
+    <div class="stat-box">
+      <div class="val" id="v-wrong">0</div>
+      <div class="lbl">❌ 答错</div>
+    </div>
+    <div class="stat-box">
+      <div class="val" id="v-remaining">57</div>
+      <div class="lbl">📋 剩余</div>
+    </div>
+    <div class="stat-box">
+      <div class="val" id="v-accuracy">—</div>
+      <div class="lbl">🎯 正确率</div>
+    </div>
+  </div>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="v-progress" style="width:0%"></div>
+  </div>
+  <div class="progress-txt" id="v-progress-txt">0 / 57 完成</div>
+  <div id="v-last-record" style="display:none;font-size:0.78rem;color:var(--primary);margin-top:6px;padding:6px 10px;background:var(--card);border-radius:8px;border-left:3px solid var(--primary)"></div>
+
+  <div style="height:16px"></div>
+
+  <div class="category-filter">
+    <button class="filter-btn active" onclick="filterVocab('all',this)">全部</button>
+    <button class="filter-btn" onclick="filterVocab('verb',this)">动词 Verbs</button>
+    <button class="filter-btn" onclick="filterVocab('adjective',this)">形容词 Adjectives</button>
+    <button class="filter-btn" onclick="filterVocab('noun',this)">名词 Nouns</button>
+  </div>
+
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="flashcard" onclick="flipCard()">
+      <div class="fc-face fc-front">
+        <div class="fc-category" id="fc-cat">VERB</div>
+        <div class="fc-word" id="fc-word">analyze</div>
+        <div class="fc-hint">点击翻转 · Click to reveal</div>
+      </div>
+      <div class="fc-face fc-back">
+        <div class="fc-pos" id="fc-pos">verb</div>
+        <div class="fc-def" id="fc-def">To examine something in detail in order to understand it better</div>
+        <div class="fc-zh" id="fc-zh">分析；详细研究</div>
+        <div class="fc-example" id="fc-example">"Researchers analyzed the data collected over a 10-year period."</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="vocab-actions">
+    <button class="btn btn-danger" onclick="markCard(false)">❌ 不会</button>
+    <button class="btn btn-outline" onclick="nextCard()">⏭ 跳过</button>
+    <button class="btn btn-success" onclick="markCard(true)">✅ 会了</button>
+  </div>
+
+  <div style="text-align:center;margin-bottom:24px">
+    <button class="btn btn-outline" onclick="shuffleCards()" style="font-size:0.82rem">🔀 随机排序</button>
+  </div>
+
+  <div class="card card-sm">
+    <h3 style="font-size:0.95rem;font-weight:600;margin-bottom:14px;color:var(--text)">📊 词汇类别说明</h3>
+    <div class="tag-row">
+      <span class="tag" style="background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.2);color:var(--accent)">动词 Verbs: 分析、评估、主张类 (15词)</span>
+      <span class="tag" style="background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.2);color:var(--success)">形容词 Adjectives: 描述类 (21词)</span>
+      <span class="tag" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.2);color:var(--warning)">名词 Nouns: 学术概念类 (21词)</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== WRITING ===== -->
+<div id="tab-writing" class="section">
+  <div class="section-title">✍️ 写作练习</div>
+  <div class="section-sub">Task 1 图表描述 · Task 2 议论文写作</div>
+
+  <div class="writing-tabs">
+    <button class="writing-tab active" onclick="switchWriting('t1',this)">Task 1 · 图表描述</button>
+    <button class="writing-tab" onclick="switchWriting('t2',this)">Task 2 · 议论文</button>
+  </div>
+
+  <!-- Task 1 -->
+  <div id="writing-t1" class="writing-content active">
+    <div class="card">
+      <h3 style="font-size:1rem;font-weight:600;margin-bottom:16px">📈 Task 1 题目示例</h3>
+      <div class="prompt-box">
+        <div class="prompt-label">题目 Prompt</div>
+        <p style="font-size:0.9rem;color:var(--text)">The bar chart below shows the percentage of students who passed their driving test after the first attempt in five different countries in 2020. Summarise the information by selecting and reporting the main features, and make comparisons where relevant.</p>
+      </div>
+
+      <div class="template-box">
+        <h4>📋 Task 1 写作模板</h4>
+        <div class="template-step">
+          <div class="step-num">1</div>
+          <div class="step-content"><strong>引言 (Introduction):</strong> 改写题目，不要照抄原文。"The bar chart illustrates the proportion of students who successfully passed their driving test on their first attempt across five countries in 2020."</div>
+        </div>
+        <div class="template-step">
+          <div class="step-num">2</div>
+          <div class="step-content"><strong>概述 (Overview):</strong> 写2-3个最重要的趋势，不带具体数字。"Overall, it is clear that... while... Additionally, the most notable feature is..."</div>
+        </div>
+        <div class="template-step">
+          <div class="step-num">3</div>
+          <div class="step-content"><strong>细节段落一 (Detail 1):</strong> 描述最高/最低的数据，带具体数字比较。使用 "at X%, considerably higher/lower than..."</div>
+        </div>
+        <div class="template-step">
+          <div class="step-num">4</div>
+          <div class="step-content"><strong>细节段落二 (Detail 2):</strong> 描述其他数据，做对比。使用 "By contrast / In comparison / Similarly..."</div>
+        </div>
+      </div>
+
+      <div class="hint-box">
+        <strong>💡 高分技巧：</strong> 使用多样化的词汇描述数据：rose sharply / declined gradually / remained relatively stable / accounted for / constituted / approximately / roughly / marginally
+      </div>
+
+      <hr class="divider">
+      <label style="font-size:0.9rem;font-weight:600;color:var(--text);display:block;margin-bottom:10px">✏️ 在此练习写作：</label>
+      <textarea class="writing-area" id="t1-area" placeholder="在此输入你的 Task 1 回答... (至少150字)" oninput="updateWordCount('t1-area','t1-wc',150);saveWritingDraft('t1-area','t1')"></textarea>
+      <span id="t1-draft-label" style="display:none;font-size:0.78rem;color:var(--primary);margin-top:4px;"></span>
+      <div class="word-counter">
+        <span style="color:var(--text2);font-size:0.85rem">字数：</span>
+        <span class="wc-num" id="t1-wc">0</span>
+        <div class="wc-bar-wrap"><div class="wc-bar low" id="t1-wcbar" style="width:0%"></div></div>
+        <span style="color:var(--text3);font-size:0.82rem">目标：150字</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task 2 -->
+  <div id="writing-t2" class="writing-content">
+    <div class="card">
+      <h3 style="font-size:1rem;font-weight:600;margin-bottom:14px">📝 选择论文题目</h3>
+      <div class="topic-selector" id="topic-selector">
+        <button class="topic-btn active" onclick="selectTopic(0,this)">话题 1</button>
+        <button class="topic-btn" onclick="selectTopic(1,this)">话题 2</button>
+        <button class="topic-btn" onclick="selectTopic(2,this)">话题 3</button>
+        <button class="topic-btn" onclick="selectTopic(3,this)">话题 4</button>
+        <button class="topic-btn" onclick="selectTopic(4,this)">话题 5</button>
+      </div>
+
+      <div class="prompt-box" id="t2-prompt">
+        <div class="prompt-label">题目 Prompt</div>
+        <p id="t2-prompt-text" style="font-size:0.9rem;color:var(--text)"></p>
+      </div>
+
+      <div class="template-box" id="t2-template">
+        <h4>📋 论文大纲模板</h4>
+        <div id="t2-outline"></div>
+      </div>
+
+      <div class="hint-box">
+        <strong>💡 高分连接词：</strong><br>
+        引入观点: Furthermore / Moreover / In addition / Additionally<br>
+        转折对比: However / Nevertheless / On the other hand / Conversely<br>
+        举例: For instance / For example / To illustrate / A case in point is<br>
+        结论: In conclusion / To summarize / Overall / It can be concluded that
+      </div>
+
+      <hr class="divider">
+      <label style="font-size:0.9rem;font-weight:600;color:var(--text);display:block;margin-bottom:10px">✏️ 在此练习写作：</label>
+      <textarea class="writing-area" id="t2-area" placeholder="在此输入你的 Task 2 回答... (至少250字)" oninput="updateWordCount('t2-area','t2-wc',250);saveWritingDraft('t2-area','t2')"></textarea>
+      <span id="t2-draft-label" style="display:none;font-size:0.78rem;color:var(--primary);margin-top:4px;"></span>
+      <div class="word-counter">
+        <span style="color:var(--text2);font-size:0.85rem">字数：</span>
+        <span class="wc-num" id="t2-wc">0</span>
+        <div class="wc-bar-wrap"><div class="wc-bar low" id="t2-wcbar" style="width:0%"></div></div>
+        <span style="color:var(--text3);font-size:0.82rem">目标：250字</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SPEAKING ===== -->
+<div id="tab-speaking" class="section">
+  <div class="section-title">🎤 口语话题</div>
+  <div class="section-sub">Part 1–3 练习题 · 内置计时器 · 范文提示</div>
+
+  <div class="speaking-grid">
+    <!-- Part 1 -->
+    <div class="part-card">
+      <div class="part-badge">Part 1 · 个人话题</div>
+      <div class="q-item">Do you prefer to study alone or in groups?</div>
+      <div class="q-item">What kind of music do you enjoy listening to?</div>
+      <div class="q-item">How do you usually spend your weekends?</div>
+      <div class="q-item">Are there many parks or outdoor spaces near your home?</div>
+      <div class="q-item">Do you think technology has changed the way people communicate?</div>
+      <div class="q-item">What kind of food do you enjoy cooking?</div>
+      <div class="hint-box" style="margin-top:12px">
+        <strong>答题技巧：</strong> 用完整句子回答，简短扩展，每题20-30秒
+      </div>
+    </div>
+
+    <!-- Part 3 -->
+    <div class="part-card">
+      <div class="part-badge" style="background:var(--accent)">Part 3 · 深度讨论</div>
+      <div class="q-item">How has globalization affected local cultures?</div>
+      <div class="q-item">Should governments invest more in public transportation?</div>
+      <div class="q-item">Do you think social media has more positive or negative effects on society?</div>
+      <div class="q-item">How might artificial intelligence change the future of work?</div>
+      <div class="q-item">What responsibilities do wealthy nations have towards developing countries?</div>
+      <div class="q-item">Is it possible to achieve a balance between economic growth and environmental protection?</div>
+      <div class="hint-box" style="margin-top:12px">
+        <strong>答题技巧：</strong> 给出观点→理由→举例→总结，每题1-2分钟
+      </div>
+    </div>
+  </div>
+
+  <!-- Part 2 Timer -->
+  <div class="card">
+    <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:6px">⏱ Part 2 计时器</h3>
+    <p style="font-size:0.85rem;color:var(--text2);margin-bottom:20px">选择一张题卡，准备1分钟后开始2分钟计时演讲</p>
+
+    <div class="cue-nav">
+      <span class="cue-counter" id="cue-counter">话题卡 1 / 5</span>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-outline" onclick="prevCue()" style="padding:7px 14px;font-size:0.82rem">← 上一题</button>
+        <button class="btn btn-outline" onclick="nextCue()" style="padding:7px 14px;font-size:0.82rem">下一题 →</button>
+      </div>
+    </div>
+
+    <div id="cue-cards-wrap">
+    </div>
+
+    <hr class="divider">
+
+    <div class="timer-section">
+      <div>
+        <div class="timer-display" id="timer-display">1:00</div>
+        <div class="timer-label" id="timer-label">准备时间</div>
+      </div>
+      <div class="timer-controls">
+        <button class="btn btn-primary" onclick="startTimer('prep')">▶ 开始准备 (1分钟)</button>
+        <button class="btn btn-warning" onclick="startTimer('speak')">🎤 开始演讲 (2分钟)</button>
+        <button class="btn btn-outline" onclick="resetTimer()">↺ 重置</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== READING ===== -->
+<div id="tab-reading" class="section">
+  <div class="section-title">📄 阅读技巧</div>
+  <div class="section-sub">TFNG练习 · 略读扫读技巧 · 答案解析</div>
+
+  <div class="two-col" style="margin-bottom:24px">
+    <div class="card card-sm">
+      <h3 style="font-size:0.95rem;font-weight:600;margin-bottom:12px">🏃 略读技巧 Skimming</h3>
+      <div class="tip-card" style="padding:12px;margin-bottom:8px">
+        <div style="font-size:1.2rem">①</div>
+        <div style="font-size:0.85rem;color:var(--text2)"><strong style="color:var(--text)">先读首句</strong>：每段第一句通常是段落主旨</div>
+      </div>
+      <div class="tip-card" style="padding:12px;margin-bottom:8px">
+        <div style="font-size:1.2rem">②</div>
+        <div style="font-size:0.85rem;color:var(--text2)"><strong style="color:var(--text)">关注连接词</strong>：However, Therefore, In contrast 等</div>
+      </div>
+      <div class="tip-card" style="padding:12px">
+        <div style="font-size:1.2rem">③</div>
+        <div style="font-size:0.85rem;color:var(--text2)"><strong style="color:var(--text)">注意数字&名字</strong>：快速定位关键信息</div>
+      </div>
+    </div>
+    <div class="card card-sm">
+      <h3 style="font-size:0.95rem;font-weight:600;margin-bottom:12px">🔍 扫读技巧 Scanning</h3>
+      <div class="tip-card" style="padding:12px;margin-bottom:8px">
+        <div style="font-size:1.2rem">①</div>
+        <div style="font-size:0.85rem;color:var(--text2)"><strong style="color:var(--text)">先看题目</strong>：带着问题去阅读文章</div>
+      </div>
+      <div class="tip-card" style="padding:12px;margin-bottom:8px">
+        <div style="font-size:1.2rem">②</div>
+        <div style="font-size:0.85rem;color:var(--text2)"><strong style="color:var(--text)">寻找关键词</strong>：找题目中的名词、动词</div>
+      </div>
+      <div class="tip-card" style="padding:12px">
+        <div style="font-size:1.2rem">③</div>
+        <div style="font-size:0.85rem;color:var(--text2)"><strong style="color:var(--text)">注意同义替换</strong>：文中用不同词表达相同意思</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="font-size:1rem;font-weight:600;margin-bottom:16px">📖 练习文章</h3>
+    <div class="passage-box" id="reading-passage">
+      <p><strong>The Impact of Urbanization on Biodiversity</strong></p>
+      <p>Urbanization is one of the most significant drivers of environmental change in the modern era. As cities expand rapidly across the globe, natural habitats are being fragmented and destroyed at an unprecedented rate. Scientists estimate that by 2050, approximately 70 percent of the world's population will reside in urban areas, placing immense pressure on ecosystems at the urban fringe.</p>
+      <p>Contrary to the popular belief that cities are ecological wastelands, recent research has demonstrated that urban environments can support surprisingly high levels of biodiversity. A study conducted in 2019 found that cities in temperate regions harbored on average 400 species of birds — a figure comparable to many rural landscapes. However, the species composition in cities tends to differ markedly from that in natural habitats, with generalist species replacing specialist ones.</p>
+      <p>The phenomenon of urban heat islands — where city centers are significantly warmer than surrounding rural areas — has been shown to affect the timing of biological events, a process known as phenology. Birds in city centers, for example, have been observed to begin their breeding season up to two weeks earlier than their counterparts in rural areas. This temporal shift can create mismatches between species and their food sources, potentially reducing reproductive success.</p>
+      <p>Green infrastructure, including parks, gardens, street trees, and green roofs, plays a crucial role in mitigating the negative effects of urbanization on wildlife. Research published in the journal Urban Ecosystems in 2021 revealed that cities with a higher proportion of green space supported greater species richness than those dominated by impervious surfaces. Furthermore, the connectivity between green patches — often described as ecological corridors — was found to be more important than the total area of green space alone.</p>
+      <p>Despite these findings, urban biodiversity remains an understudied field. Many existing conservation policies fail to account for the ecological value of urban areas, focusing predominantly on rural and wilderness settings. Experts argue that integrating biodiversity considerations into urban planning is not merely an environmental imperative but also a public health priority, given the well-documented benefits of nature exposure for human well-being.</p>
+    </div>
+
+    <div id="reading-history" style="display:none;font-size:0.78rem;color:var(--primary);margin-bottom:14px;padding:6px 10px;background:var(--card);border-radius:8px;border-left:3px solid var(--primary)"></div>
+
+    <div class="reading-score" id="reading-score-box">
+      <div>答题得分</div>
+      <div class="big" id="reading-score-val">0 / 8</div>
+      <p style="font-size:0.85rem;color:var(--text2);margin-top:6px">查看下方每题解析</p>
+    </div>
+
+    <h3 style="font-size:0.95rem;font-weight:600;margin-bottom:14px">❓ True / False / Not Given 判断题</h3>
+
+    <div id="reading-questions"></div>
+
+    <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="checkReading()">✅ 提交答案</button>
+      <button class="btn btn-outline" onclick="resetReading()">🔄 重置</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LISTENING ===== -->
+<div id="tab-listening" class="section">
+  <div class="section-title">🎧 听力技巧</div>
+  <div class="section-sub">核心策略 · 常见陷阱类型 · 备考建议</div>
+
+  <div class="card" style="margin-bottom:24px">
+    <h3 style="font-size:1rem;font-weight:700;margin-bottom:16px">🌟 核心听力策略</h3>
+    <div class="tip-card">
+      <div class="tip-icon">👁</div>
+      <div class="tip-content">
+        <h4>提前阅读题目 (Pre-reading)</h4>
+        <p>在录音播放前，利用时间快速阅读所有题目，预判将要听到的内容类型。关注题目中的关键词：人名、地名、数字、时间等。</p>
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">✏️</div>
+      <div class="tip-content">
+        <h4>边听边记 (Note-taking)</h4>
+        <p>使用缩写和符号快速记录关键信息。不要试图记录每一个词——专注于答案相关的关键信息：w= with, → = leads to, ↑ = increase。</p>
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">🔄</div>
+      <div class="tip-content">
+        <h4>注意同义替换 (Paraphrasing)</h4>
+        <p>题目中的词通常不会在录音中原词出现，而是用同义词替换。例如：题目说 "expensive" → 录音说 "costs a lot / overpriced / not cheap"。</p>
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">🔁</div>
+      <div class="tip-content">
+        <h4>保持专注连贯 (Stay Focused)</h4>
+        <p>如果错过了一题，立即放弃该题，集中注意力听下一题。不要因为一题而分心，以免错过更多答案。</p>
+      </div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-icon">📝</div>
+      <div class="tip-content">
+        <h4>检查拼写和语法 (Check Answers)</h4>
+        <p>录音结束后利用检查时间：核对拼写（尤其是专有名词）、检查填空格数限制是否超出、核实答案是否符合逻辑。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="font-size:1rem;font-weight:700;margin-bottom:16px">⚠️ 常见陷阱类型</h3>
+
+    <div class="trap-box">
+      <h4>陷阱 1：改变主意 (Change of Mind)</h4>
+      <p>说话者给出一个答案后，又改变了主意。</p>
+      <div class="trap-example">
+        "I'll book the red one... actually, no, let me go with the blue one."<br>
+        ▸ 正确答案是 <strong>blue</strong>，不是 red。
+      </div>
+    </div>
+
+    <div class="trap-box">
+      <h4>陷阱 2：否定词 (Negation)</h4>
+      <p>在答案前加上否定词，容易听漏。</p>
+      <div class="trap-example">
+        "The meeting is NOT on Monday, it's on Tuesday."<br>
+        ▸ 答案是 <strong>Tuesday</strong>。注意 not、never、hardly、rarely 等。
+      </div>
+    </div>
+
+    <div class="trap-box">
+      <h4>陷阱 3：数字混淆 (Numbers)</h4>
+      <p>相似的数字容易听混，尤其是 -teen 和 -ty。</p>
+      <div class="trap-example">
+        "thirteen (13)" vs "thirty (30)"，"fifteen (15)" vs "fifty (50)"<br>
+        ▸ 注意重音位置：thirTEEN vs THIRty
+      </div>
+    </div>
+
+    <div class="trap-box">
+      <h4>陷阱 4：干扰信息 (Distractors)</h4>
+      <p>录音中会提到题目相关词汇，但不是正确答案。</p>
+      <div class="trap-example">
+        题目问"停车费多少？" 录音说："The parking is usually $5, but today it's free."<br>
+        ▸ 答案是 <strong>free</strong>（免费），而非 $5。
+      </div>
+    </div>
+
+    <div class="trap-box">
+      <h4>陷阱 5：拼写错误 (Spelling)</h4>
+      <p>人名和地名通常会拼读出来，必须正确拼写。</p>
+      <div class="trap-example">
+        "My name is Catherine — that's C-A-T-H-E-R-I-N-E"<br>
+        ▸ 仔细听拼读，注意与常见拼写的区别（如 Katherine vs Catherine）
+      </div>
+    </div>
+
+    <div class="trap-box">
+      <h4>陷阱 6：条件限定 (Conditions)</h4>
+      <p>答案可能带有时间、条件限定词。</p>
+      <div class="trap-example">
+        "The library closes at 6pm on weekdays, but at 4pm on Saturdays."<br>
+        ▸ 若题目问周六关闭时间，答案是 <strong>4pm</strong>，不是 6pm。
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="font-size:1rem;font-weight:700;margin-bottom:16px">📅 备考建议</h3>
+    <div class="two-col">
+      <div>
+        <h4 style="font-size:0.9rem;font-weight:600;color:var(--primary);margin-bottom:10px">短期备考 (1-2个月)</h4>
+        <div class="q-item">每天听20-30分钟英语播客/新闻</div>
+        <div class="q-item">练习BBC Learning English听力材料</div>
+        <div class="q-item">做2套完整雅思真题听力</div>
+        <div class="q-item">总结自己的错题类型</div>
+      </div>
+      <div>
+        <h4 style="font-size:0.9rem;font-weight:600;color:var(--primary);margin-bottom:10px">长期备考 (3-6个月)</h4>
+        <div class="q-item">培养英语思维，减少中间翻译步骤</div>
+        <div class="q-item">多听不同口音：英式、美式、澳式</div>
+        <div class="q-item">使用剑桥真题集10-19练习</div>
+        <div class="q-item">记录生词，扩大听力词汇量</div>
+      </div>
+    </div>
+
+    <div class="hint-box" style="margin-top:16px">
+      <strong>🎯 目标分数参考：</strong><br>
+      5.0分：能理解主要内容，细节有遗漏 | 6.0分：基本准确，偶有错误 | 7.0分：准确全面，理解复杂内容 | 8.0+分：近乎完美，理解隐含意义
+    </div>
+  </div>
+</div>
+
+</div><!-- end .main -->
+
+<script>
+// ============ DARK MODE ============
+let isDark = false;
+function toggleDark() {
+  isDark = !isDark;
+  document.body.classList.toggle('dark', isDark);
+  document.getElementById('dark-icon').textContent = isDark ? '☀️' : '🌙';
+  document.getElementById('dark-txt').textContent = isDark ? '浅色模式' : '深色模式';
+}
+
+// ============ TAB NAVIGATION ============
+function switchTab(tab) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  const tabs = ['vocab','writing','speaking','reading','listening'];
+  const idx = tabs.indexOf(tab);
+  document.querySelectorAll('.nav-tab')[idx].classList.add('active');
+}
+
+// ============ VOCABULARY DATA ============
+const vocabData = [
+  // VERBS (15)
+  { word: 'analyze', pos: 'verb', zh: '分析', def: 'To examine something in detail to understand it or explain it', example: 'Researchers analyzed the data collected over a 10-year period to identify key trends.', cat: 'verb' },
+  { word: 'assess', pos: 'verb', zh: '评估；评价', def: 'To evaluate or estimate the nature, quality, or importance of something', example: 'The committee was asked to assess the environmental impact of the proposed development.', cat: 'verb' },
+  { word: 'hypothesize', pos: 'verb', zh: '假设；推测', def: 'To form a hypothesis or propose an explanation based on limited evidence', example: 'The scientists hypothesized that the decline in population was linked to habitat loss.', cat: 'verb' },
+  { word: 'proliferate', pos: 'verb', zh: '激增；扩散', def: 'To increase rapidly in number or amount; to spread widely', example: 'Social media platforms have proliferated dramatically over the past decade.', cat: 'verb' },
+  { word: 'mitigate', pos: 'verb', zh: '减轻；缓和', def: 'To make something less severe, harmful, or unpleasant', example: 'Governments must act swiftly to mitigate the effects of climate change.', cat: 'verb' },
+  { word: 'substantiate', pos: 'verb', zh: '证实；证明', def: 'To provide evidence to prove or support a claim or theory', example: 'The findings of the study help to substantiate the long-held theory about neural plasticity.', cat: 'verb' },
+  { word: 'postulate', pos: 'verb', zh: '假定；假设', def: 'To suggest or put forward an idea as a fact without proof, as a basis for discussion', example: 'Darwin postulated that all species evolved from common ancestors through natural selection.', cat: 'verb' },
+  { word: 'scrutinize', pos: 'verb', zh: '仔细检查；审查', def: 'To examine or inspect something very carefully and critically', example: 'The auditors were asked to scrutinize every financial transaction made by the company.', cat: 'verb' },
+  { word: 'facilitate', pos: 'verb', zh: '促进；使便利', def: 'To make an action or process easier or more possible', example: 'Technology has greatly facilitated communication across international borders.', cat: 'verb' },
+  { word: 'acknowledge', pos: 'verb', zh: '承认；认可', def: 'To accept or admit the existence or truth of something', example: 'The report acknowledged that significant challenges still remain in achieving gender equality.', cat: 'verb' },
+  { word: 'extrapolate', pos: 'verb', zh: '推断；推算', def: 'To extend or project known information into an unknown area to make predictions', example: 'From these results, we can extrapolate that the trend will continue over the next decade.', cat: 'verb' },
+  { word: 'corroborate', pos: 'verb', zh: '证实；支持', def: 'To confirm or give support to a statement, theory, or finding', example: 'Subsequent studies corroborated the original research team\'s conclusions.', cat: 'verb' },
+  { word: 'contend', pos: 'verb', zh: '主张；坚持认为', def: 'To assert or maintain something as a position in an argument or debate', example: 'Many economists contend that free trade ultimately benefits all participating nations.', cat: 'verb' },
+  { word: 'undermine', pos: 'verb', zh: '削弱；破坏', def: 'To lessen the effectiveness, power, or ability of something', example: 'Constant political instability has undermined the country\'s economic development.', cat: 'verb' },
+  { word: 'advocate', pos: 'verb', zh: '倡导；支持', def: 'To publicly recommend or support a particular cause or policy', example: 'The organization advocates for stricter regulations on carbon emissions worldwide.', cat: 'verb' },
+  // ADJECTIVES (21)
+  { word: 'predominant', pos: 'adjective', zh: '主要的；占主导地位的', def: 'Present as the strongest or main element; having the greatest influence', example: 'Agriculture remains the predominant economic activity in many developing countries.', cat: 'adjective' },
+  { word: 'autonomous', pos: 'adjective', zh: '自主的；独立的', def: 'Having the freedom to act independently and make its own decisions', example: 'The autonomous region has its own parliament and legal system.', cat: 'adjective' },
+  { word: 'coherent', pos: 'adjective', zh: '连贯的；有条理的', def: 'Logical and consistent; forming a unified whole that is easy to understand', example: 'A coherent argument is essential for a high-scoring IELTS Task 2 essay.', cat: 'adjective' },
+  { word: 'skeptical', pos: 'adjective', zh: '持怀疑态度的', def: 'Not easily convinced; having doubts or reservations about something', example: 'Many experts remain skeptical about the long-term viability of cryptocurrency as a currency.', cat: 'adjective' },
+  { word: 'inevitable', pos: 'adjective', zh: '不可避免的', def: 'Certain to happen and impossible to avoid or prevent', example: 'With rapid urbanization, increased demand for clean energy is inevitable.', cat: 'adjective' },
+  { word: 'comprehensive', pos: 'adjective', zh: '全面的；综合的', def: 'Including all or nearly all elements or aspects of something', example: 'The government launched a comprehensive review of the healthcare system.', cat: 'adjective' },
+  { word: 'ambiguous', pos: 'adjective', zh: '模糊的；含糊的', def: 'Open to more than one interpretation; not having a single clear meaning', example: 'The legislation was criticized for its ambiguous wording, which led to different interpretations.', cat: 'adjective' },
+  { word: 'detrimental', pos: 'adjective', zh: '有害的；不利的', def: 'Causing harm or damage; adversely affecting something', example: 'Excessive screen time can be detrimental to children\'s cognitive development.', cat: 'adjective' },
+  { word: 'empirical', pos: 'adjective', zh: '以经验为依据的；实证的', def: 'Based on observation or experience rather than theory', example: 'The study provides empirical evidence that exercise improves mental health outcomes.', cat: 'adjective' },
+  { word: 'viable', pos: 'adjective', zh: '可行的；可实施的', def: 'Capable of working successfully; feasible', example: 'Solar energy is increasingly becoming a viable alternative to fossil fuels.', cat: 'adjective' },
+  { word: 'inherent', pos: 'adjective', zh: '固有的；内在的', def: 'Existing as a permanent, essential, or characteristic quality', example: 'There are inherent risks in any form of entrepreneurship.', cat: 'adjective' },
+  { word: 'plausible', pos: 'adjective', zh: '合理的；似乎可信的', def: 'Seeming reasonable or probable; having the appearance of truth', example: 'The researchers offered a plausible explanation for the unexpected results.', cat: 'adjective' },
+  { word: 'profound', pos: 'adjective', zh: '深刻的；深远的', def: 'Very great or intense; having deep meaning or impact', example: 'The Industrial Revolution had a profound impact on social structures worldwide.', cat: 'adjective' },
+  { word: 'pervasive', pos: 'adjective', zh: '普遍的；无处不在的', def: 'Spreading widely throughout an area or a group of people', example: 'Smartphone use has become pervasive in both developed and developing nations.', cat: 'adjective' },
+  { word: 'speculative', pos: 'adjective', zh: '推测性的；投机的', def: 'Based on conjecture rather than known facts', example: 'Without further data, any conclusions drawn at this stage are purely speculative.', cat: 'adjective' },
+  { word: 'contentious', pos: 'adjective', zh: '有争议的', def: 'Causing or likely to cause an argument; controversial', example: 'Immigration policy remains one of the most contentious political issues today.', cat: 'adjective' },
+  { word: 'unprecedented', pos: 'adjective', zh: '前所未有的', def: 'Never done or known before; without historical parallel', example: 'The speed at which AI technology is advancing is truly unprecedented.', cat: 'adjective' },
+  { word: 'tangible', pos: 'adjective', zh: '有形的；明确的', def: 'Clear enough or definite enough to be easily seen or noticed', example: 'The new policy has produced tangible benefits for low-income communities.', cat: 'adjective' },
+  { word: 'erroneous', pos: 'adjective', zh: '错误的；不正确的', def: 'Wrong; based on a misunderstanding or false information', example: 'The report contained several erroneous assumptions about population growth rates.', cat: 'adjective' },
+  { word: 'arbitrary', pos: 'adjective', zh: '任意的；武断的', def: 'Based on random choice or personal whim, rather than any reason or system', example: 'Critics argued that the new regulations were arbitrary and unfairly targeted small businesses.', cat: 'adjective' },
+  { word: 'rigorous', pos: 'adjective', zh: '严格的；严密的', def: 'Extremely thorough and careful; adhering strictly to rules or principles', example: 'The research followed rigorous scientific methods to ensure the validity of its findings.', cat: 'adjective' },
+  // NOUNS (21)
+  { word: 'hypothesis', pos: 'noun', zh: '假说；假设', def: 'A proposed explanation for a phenomenon, made as a starting point for investigation', example: 'The hypothesis that cities reduce biodiversity has been challenged by recent research.', cat: 'noun' },
+  { word: 'phenomenon', pos: 'noun', zh: '现象', def: 'A fact or situation that is observed to exist or happen; an exceptional person or thing', example: 'The urban heat island effect is a well-documented meteorological phenomenon.', cat: 'noun' },
+  { word: 'paradigm', pos: 'noun', zh: '范式；典范', def: 'A typical example or pattern of something; a model or framework', example: 'The discovery led to a paradigm shift in how scientists understood human evolution.', cat: 'noun' },
+  { word: 'infrastructure', pos: 'noun', zh: '基础设施', def: 'The basic physical and organizational structures needed for a society to function', example: 'Investment in transport infrastructure is crucial for economic development.', cat: 'noun' },
+  { word: 'implication', pos: 'noun', zh: '含义；影响', def: 'A conclusion that can be drawn; the effect or consequence of something', example: 'The study has significant implications for public health policy.', cat: 'noun' },
+  { word: 'disparity', pos: 'noun', zh: '差距；不平等', def: 'A great difference or inequality between things', example: 'There is a growing disparity between the incomes of the richest and poorest citizens.', cat: 'noun' },
+  { word: 'correlation', pos: 'noun', zh: '相关性', def: 'A mutual relationship or connection between two or more things', example: 'Researchers found a strong correlation between levels of education and economic productivity.', cat: 'noun' },
+  { word: 'methodology', pos: 'noun', zh: '方法论；研究方法', def: 'A system of methods used in a particular area of study or activity', example: 'The study\'s methodology was criticized for relying too heavily on self-reported data.', cat: 'noun' },
+  { word: 'rationale', pos: 'noun', zh: '基本原理；理由', def: 'A set of reasons or a logical basis for a course of action or belief', example: 'The government provided little rationale for its decision to cut education funding.', cat: 'noun' },
+  { word: 'trajectory', pos: 'noun', zh: '轨迹；发展轨道', def: 'The path followed by an object or the course of development of a situation', example: 'The country\'s economic trajectory has been remarkably stable over the past decade.', cat: 'noun' },
+  { word: 'magnitude', pos: 'noun', zh: '规模；重要性', def: 'The great size or importance of something', example: 'The magnitude of the problem cannot be overstated — millions are affected annually.', cat: 'noun' },
+  { word: 'constraint', pos: 'noun', zh: '约束；限制', def: 'A limitation or restriction that affects what can be done', example: 'Budget constraints have forced the university to reduce its research programs.', cat: 'noun' },
+  { word: 'controversy', pos: 'noun', zh: '争议；论战', def: 'Prolonged public disagreement or heated discussion about a subject', example: 'The use of genetically modified crops continues to generate controversy worldwide.', cat: 'noun' },
+  { word: 'repercussion', pos: 'noun', zh: '影响；后果', def: 'An unintended consequence occurring some time after an event or action', example: 'The financial crisis had serious repercussions for global trade and employment.', cat: 'noun' },
+  { word: 'consensus', pos: 'noun', zh: '共识', def: 'General agreement among a group of people', example: 'There is a growing scientific consensus that human activity is the main cause of climate change.', cat: 'noun' },
+  { word: 'incentive', pos: 'noun', zh: '激励；动机', def: 'Something that motivates or encourages someone to do something', example: 'Tax incentives have encouraged many companies to invest in renewable energy.', cat: 'noun' },
+  { word: 'synthesis', pos: 'noun', zh: '综合；合成', def: 'The combination of ideas, components, or elements to form a coherent whole', example: 'The paper presents a synthesis of findings from over 200 separate studies.', cat: 'noun' },
+  { word: 'anomaly', pos: 'noun', zh: '异常；反常现象', def: 'Something that deviates from what is standard, normal, or expected', example: 'Scientists struggled to explain the anomaly in their data until they discovered a measurement error.', cat: 'noun' },
+  { word: 'credibility', pos: 'noun', zh: '可信度；公信力', def: 'The quality of being trusted and believed in; convincing quality', example: 'The author\'s credibility is enhanced by years of field research in the region.', cat: 'noun' },
+  { word: 'hierarchy', pos: 'noun', zh: '层级制度；等级制度', def: 'A system in which members of an organization are ranked according to status or authority', example: 'The rigid corporate hierarchy made it difficult for innovative ideas to be heard.', cat: 'noun' },
+  { word: 'sustainability', pos: 'noun', zh: '可持续性', def: 'The ability to maintain at a certain rate or level; avoiding depletion of natural resources', example: 'Environmental sustainability must be at the core of all future urban planning decisions.', cat: 'noun' },
+];
+
+let currentVocab = [...vocabData];
+let currentFilter = 'all';
+let currentIdx = 0;
+let vCorrect = 0, vWrong = 0;
+let answered = new Set();
+let isFlipped = false;
+
+function filterVocab(cat, btn) {
+  currentFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (cat === 'all') currentVocab = [...vocabData];
+  else currentVocab = vocabData.filter(w => w.cat === cat);
+  currentIdx = 0;
+  answered = new Set();
+  vCorrect = 0; vWrong = 0;
+  showCard();
+  updateVStats();
+}
+
+function showCard() {
+  if (currentIdx >= currentVocab.length) {
+    document.getElementById('fc-word').textContent = '🎉 全部完成！';
+    document.getElementById('fc-cat').textContent = 'DONE';
+    document.getElementById('fc-hint').textContent = '点击重置继续练习';
+    document.getElementById('fc-def').textContent = '所有词汇已完成！';
+    document.getElementById('fc-zh').textContent = '';
+    document.getElementById('fc-example').textContent = '';
+    document.getElementById('fc-pos').textContent = '';
+    return;
+  }
+  const w = currentVocab[currentIdx];
+  isFlipped = false;
+  document.getElementById('flashcard').classList.remove('flipped');
+  document.getElementById('fc-word').textContent = w.word;
+  const catMap = {verb:'VERB',adjective:'ADJ',noun:'NOUN'};
+  document.getElementById('fc-cat').textContent = catMap[w.cat] || w.cat.toUpperCase();
+  document.getElementById('fc-pos').textContent = w.pos;
+  document.getElementById('fc-def').textContent = w.def;
+  document.getElementById('fc-zh').textContent = '中文：' + w.zh;
+  document.getElementById('fc-example').textContent = '"' + w.example + '"';
+  updateVStats();
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('flashcard').classList.toggle('flipped', isFlipped);
+}
+
+function markCard(correct) {
+  if (currentIdx >= currentVocab.length) return;
+  if (!answered.has(currentIdx)) {
+    answered.add(currentIdx);
+    if (correct) vCorrect++; else vWrong++;
+  }
+  currentIdx++;
+  showCard();
+}
+
+function nextCard() {
+  if (currentIdx >= currentVocab.length) return;
+  currentIdx++;
+  showCard();
+}
+
+function shuffleCards() {
+  for (let i = currentVocab.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [currentVocab[i], currentVocab[j]] = [currentVocab[j], currentVocab[i]];
+  }
+  currentIdx = 0;
+  answered = new Set();
+  vCorrect = 0; vWrong = 0;
+  showCard();
+  updateVStats();
+}
+
+function resetVocab() {
+  if (currentFilter === 'all') currentVocab = [...vocabData];
+  else currentVocab = vocabData.filter(w => w.cat === currentFilter);
+  currentIdx = 0;
+  answered = new Set();
+  vCorrect = 0; vWrong = 0;
+  showCard();
+  updateVStats();
+}
+
+function updateVStats() {
+  const total = currentVocab.length;
+  const done = answered.size;
+  document.getElementById('v-correct').textContent = vCorrect;
+  document.getElementById('v-wrong').textContent = vWrong;
+  document.getElementById('v-remaining').textContent = total - done;
+  document.getElementById('v-accuracy').textContent = done > 0 ? Math.round(vCorrect / done * 100) + '%' : '—';
+  const pct = total > 0 ? (done / total * 100) : 0;
+  document.getElementById('v-progress').style.width = pct + '%';
+  document.getElementById('v-progress-txt').textContent = done + ' / ' + total + ' 完成';
+  saveVocabProgress();
+}
+
+// ============ LOCALSTORAGE 记忆 ============
+const STORAGE_KEY = 'ielts_tool_data';
+
+function loadData() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
+}
+function saveData(obj) {
+  try {
+    const cur = loadData();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(Object.assign(cur, obj)));
+  } catch(e) {}
+}
+
+function saveVocabProgress() {
+  if (answered.size === 0) return;
+  saveData({ vocab: { correct: vCorrect, wrong: vWrong, done: answered.size, total: currentVocab.length, ts: Date.now() } });
+}
+
+function loadVocabProgress() {
+  const d = loadData().vocab;
+  if (!d) return;
+  const bar = document.getElementById('v-last-record');
+  if (!bar) return;
+  const date = new Date(d.ts).toLocaleDateString('zh-CN');
+  const acc = d.done > 0 ? Math.round(d.correct / d.done * 100) : 0;
+  bar.textContent = `上次记录 (${date})：答对 ${d.correct} / ${d.done} 张，正确率 ${acc}%`;
+  bar.style.display = 'block';
+}
+
+function saveWritingDraft(id, key) {
+  const val = document.getElementById(id).value;
+  saveData({ [key]: { text: val, ts: Date.now() } });
+}
+
+function loadWritingDrafts() {
+  const d = loadData();
+  ['t1','t2'].forEach(k => {
+    if (d[k] && d[k].text) {
+      const el = document.getElementById(k + '-area');
+      if (el && !el.value) {
+        el.value = d[k].text;
+        const wc = k === 't1' ? 150 : 250;
+        updateWordCount(k + '-area', k + '-wc', wc);
+        const label = document.getElementById(k + '-draft-label');
+        if (label) {
+          const date = new Date(d[k].ts).toLocaleDateString('zh-CN');
+          label.textContent = `已自动恢复 ${date} 的草稿`;
+          label.style.display = 'inline';
+        }
+      }
+    }
+  });
+}
+
+function saveReadingScore(score, total) {
+  const d = loadData();
+  const history = d.readingHistory || [];
+  history.unshift({ score, total, ts: Date.now() });
+  if (history.length > 5) history.length = 5;
+  saveData({ readingHistory: history });
+  renderReadingHistory();
+}
+
+function renderReadingHistory() {
+  const el = document.getElementById('reading-history');
+  if (!el) return;
+  const history = loadData().readingHistory || [];
+  if (!history.length) return;
+  el.innerHTML = '<strong>历史记录：</strong> ' + history.map(h => {
+    const date = new Date(h.ts).toLocaleDateString('zh-CN');
+    return `${date} ${h.score}/${h.total}`;
+  }).join('　|　');
+  el.style.display = 'block';
+}
+
+// Init vocab
+showCard();
+loadVocabProgress();
+// Writing drafts loaded after DOM ready (see bottom)
+
+// ============ WRITING ============
+function switchWriting(tab, btn) {
+  document.querySelectorAll('.writing-content').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.writing-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('writing-' + tab).classList.add('active');
+  btn.classList.add('active');
+}
+
+const t2Topics = [
+  {
+    label: '话题 1',
+    prompt: 'Some people believe that the best way to improve public health is to increase the number of sports facilities. Others, however, think that this would have little effect and that other measures are required. Discuss both views and give your own opinion.',
+    outline: [
+      { title: '引言 Introduction', content: '改写题目 + 说明将讨论两种观点并给出自己的观点。<br>"While expanding sports facilities undoubtedly has merits, I believe a multifaceted approach is necessary to significantly improve public health."' },
+      { title: '观点1：支持增加运动设施', content: '论点：提高锻炼可及性 → 理由：鼓励体育活动，降低肥胖率 → 举例：Research shows nations with more sports facilities per capita tend to have lower rates of obesity.' },
+      { title: '观点2：其他措施更重要', content: '论点：运动设施只针对愿意运动的人 → 理由：更根本的健康问题（饮食、医疗、环境污染）需要政策干预 → 举例：Public health campaigns in Finland reduced heart disease by 80% through dietary changes, not sports facilities.' },
+      { title: '结论 Conclusion', content: '重申立场：两种措施都有必要，但综合手段更有效。政府应在扩大设施的同时推行健康教育、改善医疗可及性。' },
+    ]
+  },
+  {
+    label: '话题 2',
+    prompt: 'In many countries, the gap between the rich and the poor is increasing. What are the causes of this trend? What solutions could be used to address this problem?',
+    outline: [
+      { title: '引言 Introduction', content: '表明贫富差距扩大是全球性问题，将讨论其原因并提出解决方案。' },
+      { title: '原因1：全球化与技术进步', content: '论点：全球化使高技能劳动者受益，但低技能工人被取代 → 理由：自动化和人工智能加速了这一进程 → 数据：The World Economic Forum estimates automation could displace 85 million jobs by 2025.' },
+      { title: '原因2：税收制度不公平', content: '论点：富人通过合法避税手段减少税负 → 理由：离岸账户、资本利得税率低于所得税 → 举例：Many multinational corporations pay an effective tax rate of less than 5%.' },
+      { title: '解决方案', content: '① 累进税制改革，提高资本利得税 ② 加大职业技能培训投入，帮助低技能工人转型 ③ 加强国际合作，打击逃税避税 ④ 扩大社会保障覆盖面' },
+      { title: '结论 Conclusion', content: '总结原因（全球化、税制漏洞），重申需要多方合作：政府、企业和国际组织共同努力缩小差距。' },
+    ]
+  },
+  {
+    label: '话题 3',
+    prompt: 'Some people argue that the development of artificial intelligence will have a largely positive impact on society. To what extent do you agree or disagree?',
+    outline: [
+      { title: '引言 Introduction', content: '表明立场：AI的影响是复杂的，整体上利大于弊，但需要谨慎管理潜在风险。' },
+      { title: '段落1：AI的积极影响', content: '医疗：AI辅助诊断提高准确率，改善患者预后 → 效率：自动化重复性工作，让人专注于创造性任务 → 科学：AI加速药物研发、气候模型等领域研究 → 举例：DeepMind\'s AlphaFold solved protein folding structures in months, not decades.' },
+      { title: '段落2：AI的潜在风险', content: '就业：大规模自动化导致结构性失业 → 隐私：面部识别和数据收集引发监控社会担忧 → 偏见：AI系统可能放大训练数据中的偏见 → 安全：AI武器化带来新的安全威胁' },
+      { title: '反驳与立场巩固', content: '历史证明技术革命长期创造了更多就业机会（如工业革命）；关键在于合理监管和公平分配AI红利。' },
+      { title: '结论 Conclusion', content: '同意AI总体有益，但强调需要国际监管框架确保其负责任发展，以便全人类共享技术进步成果。' },
+    ]
+  },
+  {
+    label: '话题 4',
+    prompt: 'Many people today are working in jobs that do not match their university degree. Do you think this is a positive or negative development? Give your reasons.',
+    outline: [
+      { title: '引言 Introduction', content: '描述这一普遍现象，表明这一发展总体上是负面的，尽管有一些积极方面。' },
+      { title: '段落1：负面影响', content: '① 教育资源浪费：国家投入大量资金培养专才，却无法有效利用 ② 个人发展受限：在不相关领域工作可能导致职业满足感低、效率低下 ③ 技能退化：专业技能因长期不用而生疏 → 举例：Many engineering graduates work in finance or sales, leaving a shortage of skilled engineers.' },
+      { title: '段落2：部分积极方面', content: '① 跨领域技能迁移：某些能力（批判性思维、沟通能力）在任何岗位都有价值 ② 就业市场灵活性：能够适应变化的劳动力市场需求 ③ 多元化经历有益于综合发展' },
+      { title: '根本原因分析', content: '高校课程与劳动力市场脱节；学生选择专业时缺乏职业规划指导；部分地区特定专业岗位供不应求。' },
+      { title: '结论 Conclusion', content: '重申这是负面发展，呼吁高校、企业和政府合作：改革课程使之更贴合市场需求，加强职业指导，促进产学合作。' },
+    ]
+  },
+  {
+    label: '话题 5',
+    prompt: 'Environmental problems are too large to be solved by individual countries or individual people. To what extent do you agree or disagree with this statement?',
+    outline: [
+      { title: '引言 Introduction', content: '部分同意：环境问题确实需要全球合作，但个人和国家的行动同样不可或缺。' },
+      { title: '段落1：国际合作的必要性', content: '气候变化、海洋污染等跨越国界，单个国家的努力效果有限 → 举例：CO₂ emissions do not respect national borders; a reduction in one country is offset by increases elsewhere → 需要：Paris Agreement, IPCC等国际机制至关重要' },
+      { title: '段落2：个人行动的重要性', content: '消费者行为驱动市场：减少肉类消费、选择可持续产品可产生显著影响 → 集体力量：数十亿人的小改变累积效果巨大 → 举例：Global decline in single-use plastics driven largely by individual consumer pressure on corporations.' },
+      { title: '段落3：国家政策的关键作用', content: '法规和政策可以系统性推动绿色转型：碳税、可再生能源补贴、环保标准 → 举例：Denmark generates over 50% of electricity from wind power thanks to consistent national policy.' },
+      { title: '结论 Conclusion', content: '三个层面缺一不可：个人改变生活方式、国家制定强有力政策、国际社会加强合作。环境问题的解决需要所有层面的协同行动。' },
+    ]
+  }
+];
+
+let selectedTopic = 0;
+function selectTopic(idx, btn) {
+  selectedTopic = idx;
+  document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTopic();
+}
+
+function renderTopic() {
+  const t = t2Topics[selectedTopic];
+  document.getElementById('t2-prompt-text').textContent = t.prompt;
+  let html = '';
+  t.outline.forEach((step, i) => {
+    html += `<div class="template-step">
+      <div class="step-num">${i + 1}</div>
+      <div class="step-content"><strong>${step.title}：</strong>${step.content}</div>
+    </div>`;
+  });
+  document.getElementById('t2-outline').innerHTML = html;
+}
+renderTopic();
+
+function updateWordCount(areaId, wcId, target) {
+  const text = document.getElementById(areaId).value.trim();
+  const words = text === '' ? 0 : text.split(/\s+/).filter(w => w.length > 0).length;
+  const el = document.getElementById(wcId);
+  el.textContent = words;
+  const pct = Math.min((words / target) * 100, 100);
+  const barId = areaId.replace('-area', '-wcbar');
+  const bar = document.getElementById(barId);
+  if (words >= target) {
+    el.className = 'wc-num ok';
+    bar.className = 'wc-bar ok';
+  } else {
+    el.className = 'wc-num low';
+    bar.className = 'wc-bar low';
+  }
+  bar.style.width = pct + '%';
+}
+
+// ============ SPEAKING ============
+const cuecards = [
+  {
+    title: 'Describe a book you have read that you found particularly interesting.',
+    points: [
+      'What book it was and what it was about',
+      'When and where you read it',
+      'What you found particularly interesting about it',
+      'And explain what effect the book had on you'
+    ],
+    model: 'I\'d like to talk about "Sapiens: A Brief History of Humankind" by Yuval Noah Harari, which I read during my university years. This fascinating book covers the entire history of humanity, from the evolution of Homo sapiens in the Stone Age to the present day. What I found particularly compelling was Harari\'s argument that shared myths and collective imaginations — like money, nations, and religion — are what enable humans to cooperate on a massive scale. This idea completely shifted my perspective on modern society. The book left me questioning many of the institutions and values I had previously taken for granted, which I believe is the mark of truly great writing.'
+  },
+  {
+    title: 'Describe a memorable journey or trip you have taken.',
+    points: [
+      'Where you went and when you went there',
+      'Who you went with',
+      'What you did during the trip',
+      'And explain why this journey was particularly memorable for you'
+    ],
+    model: 'I\'d like to talk about a trip I took to Kyoto, Japan, two years ago with my college roommates. We spent five days exploring the ancient capital, visiting historic temples like Fushimi Inari and Kinkaku-ji, and participating in a traditional tea ceremony. What made the trip truly memorable was stumbling upon a small, unmarked alley lined with traditional wooden machiya houses, completely free of tourists. We spent an afternoon there, chatting with a local craftsman who demonstrated his woodworking skills. It reminded me that the most precious travel experiences are often unplanned. That spontaneous afternoon remains my most vivid and cherished memory from the entire trip.'
+  },
+  {
+    title: 'Describe a person who has had a significant influence on your life.',
+    points: [
+      'Who this person is and what their relationship is to you',
+      'How long you have known this person',
+      'What qualities or characteristics make them influential',
+      'And explain how they have specifically influenced your life'
+    ],
+    model: 'The person who has had the most profound influence on my life is my secondary school science teacher, Mr. Chen. I knew him for three years, from when I was 15 to 17. He was remarkable because he never just taught facts — he taught us how to think critically and question everything. I remember him encouraging me to challenge textbook assumptions with questions like, "But how do we actually know that?" His passion for inquiry completely transformed my approach to learning. He was the reason I chose to study environmental science at university. More importantly, he instilled in me the belief that intellectual curiosity is not just a tool for academic success but a lifelong asset.'
+  },
+  {
+    title: 'Describe a skill you would like to learn in the future.',
+    points: [
+      'What the skill is',
+      'Why you would like to learn it',
+      'How you would go about learning it',
+      'And explain how useful it would be for your life or career'
+    ],
+    model: 'I\'ve long wanted to master data visualization — specifically the ability to take complex datasets and transform them into compelling, clear visual narratives. My interest grew when I realized that in my current role as a marketing analyst, raw numbers rarely persuade decision-makers; well-designed charts and infographics do. I plan to start with online courses on platforms like Coursera to learn tools such as Tableau and Python\'s Matplotlib library, then work on real-world projects with publicly available datasets. This skill would be enormously valuable because it bridges the gap between technical analysis and business communication — a combination that is increasingly sought after across virtually every industry.'
+  },
+  {
+    title: 'Describe a time when you had to deal with a difficult problem.',
+    points: [
+      'What the problem was',
+      'When and where it happened',
+      'How you dealt with it',
+      'And explain what you learned from the experience'
+    ],
+    model: 'I\'d like to describe a challenge I faced during my final year thesis project. About three weeks before the submission deadline, I discovered that a fundamental assumption underlying my entire methodology was flawed, which potentially invalidated six months of research. Initially, I panicked — it felt catastrophic. However, I forced myself to take a step back, consult my supervisor, and approach the problem systematically. We identified that while the original approach was flawed, the data I had collected could be reanalyzed using a different statistical model. I worked extremely long hours for two weeks, ultimately submitting a revised and arguably stronger thesis on time. The experience taught me that problems, no matter how overwhelming they seem, can almost always be broken down into manageable steps — and that asking for help is a sign of wisdom, not weakness.'
+  }
+];
+
+let currentCue = 0;
+function renderCueCards() {
+  const wrap = document.getElementById('cue-cards-wrap');
+  wrap.innerHTML = cuecards.map((c, i) => `
+    <div class="cue-card-wrap ${i === 0 ? 'active' : ''}" id="cue-${i}">
+      <div class="cue-card">
+        <div class="cue-card-title">🗣 ${c.title}</div>
+        <div class="cue-points">
+          ${c.points.map(p => `<div class="cue-point">${p}</div>`).join('')}
+        </div>
+        <span class="model-toggle" onclick="toggleModel(${i})">查看范文提示 ▾</span>
+        <div class="model-answer" id="model-${i}">${c.model}</div>
+      </div>
+    </div>
+  `).join('');
+  updateCueCounter();
+}
+
+function toggleModel(i) {
+  const el = document.getElementById('model-' + i);
+  el.classList.toggle('visible');
+}
+
+function prevCue() {
+  if (currentCue > 0) {
+    document.getElementById('cue-' + currentCue).classList.remove('active');
+    currentCue--;
+    document.getElementById('cue-' + currentCue).classList.add('active');
+    updateCueCounter();
+  }
+}
+
+function nextCue() {
+  if (currentCue < cuecards.length - 1) {
+    document.getElementById('cue-' + currentCue).classList.remove('active');
+    currentCue++;
+    document.getElementById('cue-' + currentCue).classList.add('active');
+    updateCueCounter();
+  }
+}
+
+function updateCueCounter() {
+  document.getElementById('cue-counter').textContent = `话题卡 ${currentCue + 1} / ${cuecards.length}`;
+}
+
+renderCueCards();
+
+// Timer
+let timerInterval = null;
+let timerSeconds = 60;
+let timerMode = 'prep';
+
+function startTimer(mode) {
+  clearInterval(timerInterval);
+  timerMode = mode;
+  timerSeconds = mode === 'prep' ? 60 : 120;
+  document.getElementById('timer-label').textContent = mode === 'prep' ? '准备时间' : '演讲时间';
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timerSeconds--;
+    updateTimerDisplay();
+    if (timerSeconds <= 0) {
+      clearInterval(timerInterval);
+      document.getElementById('timer-display').classList.add('danger');
+      document.getElementById('timer-label').textContent = mode === 'prep' ? '准备时间结束！开始演讲' : '时间到！';
+    }
+  }, 1000);
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  timerSeconds = 60;
+  timerMode = 'prep';
+  const disp = document.getElementById('timer-display');
+  disp.classList.remove('warning', 'danger');
+  disp.textContent = '1:00';
+  document.getElementById('timer-label').textContent = '准备时间';
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timerSeconds / 60);
+  const s = timerSeconds % 60;
+  const disp = document.getElementById('timer-display');
+  disp.textContent = m + ':' + String(s).padStart(2, '0');
+  disp.classList.remove('warning', 'danger');
+  if (timerSeconds <= 10) disp.classList.add('danger');
+  else if (timerSeconds <= 30) disp.classList.add('warning');
+}
+
+// ============ READING ============
+const readingQuestions = [
+  { text: 'Urbanization is currently the most significant driver of environmental change in the world.', answer: 'T', explanation: 'Paragraph 1 states "Urbanization is one of the most significant drivers of environmental change" — while it says "one of the most significant," the statement closely mirrors the passage and is supported.' },
+  { text: 'Cities are generally considered ecological wastelands by scientists.', answer: 'F', explanation: 'Paragraph 2 states this is a "popular belief" that "recent research has demonstrated" to be incorrect — so it is a myth, not the scientific view. The statement is FALSE.' },
+  { text: 'A 2019 study found that cities in temperate regions had more bird species than rural landscapes.', answer: 'F', explanation: 'The passage says urban cities harbored "on average 400 species of birds — a figure comparable to many rural landscapes" — comparable, not more. The statement is FALSE.' },
+  { text: 'Bird breeding seasons in city centres begin earlier than those in rural areas.', answer: 'T', explanation: 'Paragraph 3 explicitly states: "Birds in city centers... have been observed to begin their breeding season up to two weeks earlier than their counterparts in rural areas."' },
+  { text: 'The early breeding season in cities always leads to a reduction in bird populations.', answer: 'NG', explanation: 'The passage mentions this "can create mismatches... potentially reducing reproductive success," but does not confirm it always leads to population reduction. NOT GIVEN.' },
+  { text: 'Research published in 2021 found that cities with more green space had greater species richness.', answer: 'T', explanation: 'Paragraph 4 directly states: "cities with a higher proportion of green space supported greater species richness than those dominated by impervious surfaces."' },
+  { text: 'The total area of green space is more important for biodiversity than how well green areas are connected.', answer: 'F', explanation: 'The passage states "the connectivity between green patches... was found to be more important than the total area of green space alone." The statement is FALSE.' },
+  { text: 'All existing conservation policies now include urban biodiversity considerations.', answer: 'NG', explanation: 'The passage says "many existing conservation policies fail to account" for urban areas, but makes no claim about ALL policies. NOT GIVEN.' },
+];
+
+let readingAnswers = {};
+function renderReadingQuestions() {
+  const wrap = document.getElementById('reading-questions');
+  wrap.innerHTML = readingQuestions.map((q, i) => `
+    <div class="q-block" id="q-block-${i}">
+      <div class="q-text">${i + 1}. ${q.text}</div>
+      <div class="q-options">
+        <div class="q-opt" id="q-${i}-T" onclick="selectAnswer(${i},'T')">TRUE</div>
+        <div class="q-opt" id="q-${i}-F" onclick="selectAnswer(${i},'F')">FALSE</div>
+        <div class="q-opt" id="q-${i}-NG" onclick="selectAnswer(${i},'NG')">NOT GIVEN</div>
+      </div>
+      <div class="q-feedback" id="q-fb-${i}"></div>
+    </div>
+  `).join('');
+}
+
+function selectAnswer(qIdx, ans) {
+  readingAnswers[qIdx] = ans;
+  ['T','F','NG'].forEach(a => {
+    const el = document.getElementById(`q-${qIdx}-${a}`);
+    el.className = 'q-opt';
+    if (a === ans) el.className += ' selected-' + a.toLowerCase().replace('ng','ng');
+  });
+  // Style the selected button
+  const sel = document.getElementById(`q-${qIdx}-${ans}`);
+  sel.style.background = 'var(--primary)';
+  sel.style.borderColor = 'var(--primary)';
+  sel.style.color = '#fff';
+  ['T','F','NG'].filter(a => a !== ans).forEach(a => {
+    const el = document.getElementById(`q-${qIdx}-${a}`);
+    el.style.background = '';
+    el.style.borderColor = '';
+    el.style.color = '';
+  });
+}
+
+function checkReading() {
+  let score = 0;
+  readingQuestions.forEach((q, i) => {
+    const ans = readingAnswers[i];
+    const fb = document.getElementById('q-fb-' + i);
+    const block = document.getElementById('q-block-' + i);
+    ['T','F','NG'].forEach(a => {
+      const el = document.getElementById(`q-${i}-${a}`);
+      el.style.background = '';
+      el.style.borderColor = '';
+      el.style.color = '';
+    });
+    if (!ans) {
+      fb.className = 'q-feedback wrong';
+      fb.style.display = 'block';
+      fb.innerHTML = '❌ 未作答 | 正确答案：<strong>' + q.answer + '</strong> — ' + q.explanation;
+      return;
+    }
+    const correct = ans === q.answer;
+    if (correct) score++;
+    fb.className = 'q-feedback ' + (correct ? 'correct' : 'wrong');
+    fb.style.display = 'block';
+    fb.innerHTML = (correct ? '✅ 正确！' : '❌ 错误 | 正确答案：<strong>' + q.answer + '</strong>') + ' — ' + q.explanation;
+    // Color the correct answer button
+    const correctBtn = document.getElementById(`q-${i}-${q.answer}`);
+    correctBtn.style.background = correct ? 'var(--success)' : '';
+    correctBtn.style.borderColor = correct ? 'var(--success)' : 'var(--danger)';
+    correctBtn.style.color = correct ? '#fff' : '';
+    if (!correct && ans) {
+      const wrongBtn = document.getElementById(`q-${i}-${ans}`);
+      wrongBtn.style.background = 'var(--danger)';
+      wrongBtn.style.borderColor = 'var(--danger)';
+      wrongBtn.style.color = '#fff';
+    }
+  });
+  const box = document.getElementById('reading-score-box');
+  box.style.display = 'block';
+  document.getElementById('reading-score-val').textContent = score + ' / ' + readingQuestions.length;
+  saveReadingScore(score, readingQuestions.length);
+}
+
+function resetReading() {
+  readingAnswers = {};
+  renderReadingQuestions();
+  document.getElementById('reading-score-box').style.display = 'none';
+}
+
+renderReadingQuestions();
+renderReadingHistory();
+
+// Load writing drafts after DOM is ready
+loadWritingDrafts();
+</script>
+</body>
+</html>
