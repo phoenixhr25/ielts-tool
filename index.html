@@ -675,6 +675,88 @@
   }
   .cue-card-wrap { display: none; }
   .cue-card-wrap.active { display: block; }
+  /* ===== SCHEDULE ===== */
+  .today-banner {
+    background: linear-gradient(135deg,rgba(37,99,235,.08),rgba(99,102,241,.08));
+    border: 1px solid rgba(37,99,235,.18);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 22px;
+    display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap;
+  }
+  .today-banner-icon { font-size: 2rem; }
+  .today-banner-info { flex: 1; min-width: 160px; }
+  .today-banner-info h3 { font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+  .today-banner-info p { font-size: 0.82rem; color: var(--text2); }
+  .today-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .today-pill { padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; color: #fff; }
+  .sched-table-wrap { overflow-x: auto; }
+  .sched-table { width: 100%; border-collapse: collapse; min-width: 560px; }
+  .sched-table th {
+    padding: 10px 6px; font-size: 0.8rem; font-weight: 700;
+    text-align: center; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text2); line-height: 1.4;
+  }
+  .sched-table th.today-hd { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .sched-table td { padding: 5px; border: 1px solid var(--border); text-align: center; vertical-align: middle; }
+  .sched-table td.time-cell {
+    font-size: 0.7rem; color: var(--text3); background: var(--surface2);
+    white-space: nowrap; padding: 6px 8px; line-height: 1.5;
+  }
+  .sched-table td.time-cell b { font-size: 0.8rem; color: var(--text2); display: block; }
+  .sched-table td.today-col { background: rgba(37,99,235,.04); }
+  .sched-table tr.sched-break td {
+    background: var(--surface2); color: var(--text3);
+    font-size: 0.72rem; padding: 5px 10px; font-style: italic; letter-spacing: 0.3px;
+  }
+  .subj-pill {
+    display: block; padding: 8px 4px; border-radius: 8px;
+    font-size: 0.78rem; font-weight: 700; color: #fff; line-height: 1.2;
+  }
+  .routine-row {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 9px 0; border-bottom: 1px solid var(--border);
+  }
+  .routine-row:last-child { border-bottom: none; }
+  .routine-time { font-size: 0.75rem; font-weight: 700; color: var(--primary); min-width: 50px; padding-top: 2px; }
+  .routine-ico { font-size: 1rem; flex-shrink: 0; }
+  .routine-body strong { font-size: 0.87rem; color: var(--text); display: block; }
+  .routine-body small { font-size: 0.76rem; color: var(--text3); }
+  .legend-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .legend-pill {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 5px 10px;
+    font-size: 0.8rem; color: var(--text2);
+  }
+  .legend-swatch { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .hw-row { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+  .hw-sel, .hw-inp {
+    padding: 9px 12px; border-radius: 9px; border: 1.5px solid var(--border);
+    background: var(--surface); color: var(--text); font-size: 0.88rem; font-family: inherit;
+    transition: var(--transition);
+  }
+  .hw-sel:focus, .hw-inp:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+  .hw-inp { flex: 1; min-width: 160px; }
+  .hw-list { list-style: none; }
+  .hw-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; background: var(--surface2); border-radius: 10px;
+    margin-bottom: 8px; border: 1px solid var(--border); transition: opacity .25s;
+  }
+  .hw-done { opacity: 0.45; }
+  .hw-done .hw-lbl { text-decoration: line-through; }
+  .hw-chk {
+    width: 20px; height: 20px; border-radius: 5px; border: 2px solid var(--border);
+    cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    transition: var(--transition); font-size: 0.65rem; color: transparent;
+  }
+  .hw-chk.on { background: var(--success); border-color: var(--success); color: #fff; }
+  .hw-tag { font-size: 0.68rem; padding: 2px 8px; border-radius: 8px; font-weight: 700; color: #fff; white-space: nowrap; }
+  .hw-lbl { flex: 1; font-size: 0.87rem; color: var(--text); }
+  .hw-del { cursor: pointer; background: none; border: none; color: var(--text3); padding: 3px 6px; border-radius: 5px; transition: var(--transition); line-height: 1; }
+  .hw-del:hover { background: rgba(239,68,68,.1); color: var(--danger); }
+  .hw-empty { text-align: center; color: var(--text3); padding: 24px; font-size: 0.88rem; }
 </style>
 </head>
 <body>
@@ -702,6 +784,7 @@
     <div class="nav-tab" onclick="switchTab('speaking')">🎤 口语话题</div>
     <div class="nav-tab" onclick="switchTab('reading')">📄 阅读技巧</div>
     <div class="nav-tab" onclick="switchTab('listening')">🎧 听力技巧</div>
+    <div class="nav-tab" onclick="switchTab('schedule')">📅 小学课表</div>
   </div>
 </div>
 
@@ -1150,6 +1233,81 @@
   </div>
 </div>
 
+
+<!-- ===== SCHEDULE ===== -->
+<div id="tab-schedule" class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-title">📅 小学课表</div>
+      <div class="section-sub">深圳三年级小学生 · 2025-2026学年第二学期</div>
+    </div>
+  </div>
+
+  <div class="today-banner" id="today-banner"></div>
+
+  <div class="card">
+    <h3 style="font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:16px">📋 本周课表</h3>
+    <div class="sched-table-wrap">
+      <table class="sched-table">
+        <thead><tr id="sched-head"></tr></thead>
+        <tbody id="sched-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <h3 style="font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:14px">⏰ 每日作息</h3>
+      <div class="routine-row"><div class="routine-time">06:30</div><div class="routine-ico">🌅</div><div class="routine-body"><strong>起床</strong><small>洗漱、换校服</small></div></div>
+      <div class="routine-row"><div class="routine-time">07:00</div><div class="routine-ico">🍳</div><div class="routine-body"><strong>吃早饭</strong><small>营养早餐，补充能量</small></div></div>
+      <div class="routine-row"><div class="routine-time">07:30</div><div class="routine-ico">🎒</div><div class="routine-body"><strong>出发上学</strong><small>检查书包，准时出门</small></div></div>
+      <div class="routine-row"><div class="routine-time">07:50</div><div class="routine-ico">🏫</div><div class="routine-body"><strong>到校 · 早读</strong><small>朗读语文、英语课文</small></div></div>
+      <div class="routine-row"><div class="routine-time">08:00</div><div class="routine-ico">📖</div><div class="routine-body"><strong>上午课程开始</strong><small>第1–4节课 (08:00–11:20)</small></div></div>
+      <div class="routine-row"><div class="routine-time">09:30</div><div class="routine-ico">👁️</div><div class="routine-body"><strong>眼保健操</strong><small>第2节课后，保护视力</small></div></div>
+      <div class="routine-row"><div class="routine-time">11:20</div><div class="routine-ico">🍱</div><div class="routine-body"><strong>午饭 · 午休</strong><small>午饭后休息至13:20</small></div></div>
+      <div class="routine-row"><div class="routine-time">13:30</div><div class="routine-ico">📚</div><div class="routine-body"><strong>下午课程开始</strong><small>第5–7节课 (13:30–15:50)</small></div></div>
+      <div class="routine-row"><div class="routine-time">15:00</div><div class="routine-ico">👁️</div><div class="routine-body"><strong>眼保健操</strong><small>第6节课后</small></div></div>
+      <div class="routine-row"><div class="routine-time">15:50</div><div class="routine-ico">🏠</div><div class="routine-body"><strong>放学</strong><small>收拾书包，有序离校</small></div></div>
+      <div class="routine-row"><div class="routine-time">16:30</div><div class="routine-ico">🏃</div><div class="routine-body"><strong>课外活动</strong><small>运动 / 兴趣班 / 自由玩耍</small></div></div>
+      <div class="routine-row"><div class="routine-time">17:30</div><div class="routine-ico">✏️</div><div class="routine-body"><strong>完成作业</strong><small>语文、数学、英语作业</small></div></div>
+      <div class="routine-row"><div class="routine-time">18:30</div><div class="routine-ico">🍜</div><div class="routine-body"><strong>晚饭</strong><small>全家一起吃饭</small></div></div>
+      <div class="routine-row"><div class="routine-time">19:00</div><div class="routine-ico">📕</div><div class="routine-body"><strong>课外阅读</strong><small>每天阅读30分钟</small></div></div>
+      <div class="routine-row"><div class="routine-time">21:00</div><div class="routine-ico">🌙</div><div class="routine-body"><strong>睡觉</strong><small>保证9–10小时睡眠</small></div></div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:14px">🎨 科目说明</h3>
+      <div class="legend-grid" id="sched-legend"></div>
+      <hr class="divider" style="margin:16px 0">
+      <div class="hint-box">
+        <strong>💡 深圳三年级课时安排参考：</strong><br>
+        语文 8节/周 · 数学 5节/周 · 英语 4节/周 · 体育 5节/周<br>
+        科学、音乐、美术各 2节 · 综合实践、信息技术各 1–2节
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:14px">📝 作业记录</h3>
+    <div class="hw-row">
+      <select class="hw-sel" id="hw-subj">
+        <option value="chinese">语文</option>
+        <option value="math">数学</option>
+        <option value="english">英语</option>
+        <option value="science">科学</option>
+        <option value="art">美术</option>
+        <option value="music">音乐</option>
+        <option value="pe">体育</option>
+        <option value="other">其他</option>
+      </select>
+      <input class="hw-inp" id="hw-inp" type="text" placeholder="输入作业内容..." maxlength="60" onkeydown="if(event.key==='Enter')addHomework()">
+      <button class="btn btn-primary" onclick="addHomework()">+ 添加</button>
+    </div>
+    <ul class="hw-list" id="hw-list"></ul>
+    <div class="hw-empty" id="hw-empty">暂无作业记录 · 继续加油！🎉</div>
+  </div>
+</div>
+
 </div><!-- end .main -->
 
 <script>
@@ -1167,9 +1325,10 @@ function switchTab(tab) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
-  const tabs = ['vocab','writing','speaking','reading','listening'];
+  const tabs = ['vocab','writing','speaking','reading','listening','schedule'];
   const idx = tabs.indexOf(tab);
   document.querySelectorAll('.nav-tab')[idx].classList.add('active');
+  if (tab === 'schedule') initSchedule();
 }
 
 // ============ VOCABULARY DATA ============
@@ -1764,6 +1923,157 @@ renderReadingHistory();
 
 // Load writing drafts after DOM is ready
 loadWritingDrafts();
+
+// ============ SCHEDULE ============
+const SUBJS = {
+  chinese:  { name: '语文',    color: '#2563eb' },
+  math:     { name: '数学',    color: '#6366f1' },
+  english:  { name: '英语',    color: '#0ea5e9' },
+  pe:       { name: '体育',    color: '#10b981' },
+  moral:    { name: '道德法治', color: '#f59e0b' },
+  science:  { name: '科学',    color: '#059669' },
+  music:    { name: '音乐',    color: '#8b5cf6' },
+  art:      { name: '美术',    color: '#ec4899' },
+  practice: { name: '综合实践', color: '#f97316' },
+  it:       { name: '信息技术', color: '#06b6d4' },
+  labor:    { name: '劳动',    color: '#65a30d' },
+  class:    { name: '班队课',  color: '#f43f5e' },
+  other:    { name: '其他',    color: '#94a3b8' },
+};
+
+// Each row: period number, time string, [Mon,Tue,Wed,Thu,Fri]
+const SCHED_DATA = [
+  { p: 1, time: ['08:00','08:40'], classes: ['chinese','math',   'chinese','chinese','math'    ] },
+  { p: 2, time: ['08:50','09:30'], classes: ['math',   'chinese','math',   'math',   'chinese'  ] },
+  { p: 3, time: ['09:50','10:30'], classes: ['english','english','english','english','pe'        ] },
+  { p: 4, time: ['10:40','11:20'], classes: ['pe',     'moral',  'pe',     'pe',     'moral'    ] },
+  { p: 5, time: ['13:30','14:10'], classes: ['chinese','pe',     'chinese','science','it'        ] },
+  { p: 6, time: ['14:20','15:00'], classes: ['science','music',  'art',    'music',  'class'    ] },
+  { p: 7, time: ['15:10','15:50'], classes: ['art',    'it',     'practice','labor', 'chinese'  ] },
+];
+
+const DAYS_ZH = ['周一','周二','周三','周四','周五'];
+const DAYS_EN = ['Mon','Tue','Wed','Thu','Fri'];
+
+function getTodayIdx() {
+  const d = new Date().getDay(); // 0=Sun,1=Mon,...6=Sat
+  if (d === 0 || d === 6) return -1;
+  return d - 1; // 0=Mon,...4=Fri
+}
+
+function schedBreakRow(timeStr, label) {
+  return `<tr class="sched-break"><td class="time-cell">${timeStr}</td><td colspan="5">${label}</td></tr>`;
+}
+
+function renderScheduleHead() {
+  const todayIdx = getTodayIdx();
+  let html = '<th style="min-width:76px">节次 / 时间</th>';
+  DAYS_ZH.forEach((zh, i) => {
+    const cls = i === todayIdx ? 'today-hd' : '';
+    html += `<th class="${cls}">${zh}<br><span style="font-weight:400;font-size:.7rem;opacity:.8">${DAYS_EN[i]}</span></th>`;
+  });
+  document.getElementById('sched-head').innerHTML = html;
+}
+
+function renderScheduleBody() {
+  const todayIdx = getTodayIdx();
+  let html = '';
+  SCHED_DATA.forEach((row, ri) => {
+    if (ri === 2) html += schedBreakRow('09:30–09:50', '👁️ 眼保健操 · 大课间');
+    if (ri === 4) html += schedBreakRow('11:20–13:30', '🍱 午餐 · 午休');
+    if (ri === 6) html += schedBreakRow('15:00–15:10', '👁️ 眼保健操');
+    html += `<tr><td class="time-cell"><b>第${row.p}节</b>${row.time[0]}<span style="color:var(--text3)">–${row.time[1]}</span></td>`;
+    row.classes.forEach((subj, ci) => {
+      const s = SUBJS[subj];
+      const col = ci === todayIdx ? ' today-col' : '';
+      html += `<td class="${col}"><span class="subj-pill" style="background:${s.color}">${s.name}</span></td>`;
+    });
+    html += '</tr>';
+  });
+  document.getElementById('sched-body').innerHTML = html;
+}
+
+function renderTodayBanner() {
+  const todayIdx = getTodayIdx();
+  const banner = document.getElementById('today-banner');
+  if (todayIdx === -1) {
+    banner.innerHTML = `<div class="today-banner-icon">🌞</div><div class="today-banner-info"><h3>今天是周末！</h3><p>好好休息，下周继续加油！</p></div>`;
+    return;
+  }
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('zh-CN', { year:'numeric', month:'long', day:'numeric', weekday:'long' });
+  const pills = SCHED_DATA.map(r => {
+    const s = SUBJS[r.classes[todayIdx]];
+    return `<span class="today-pill" style="background:${s.color}">${s.name}</span>`;
+  }).join('');
+  banner.innerHTML = `
+    <div class="today-banner-icon">📅</div>
+    <div class="today-banner-info">
+      <h3>${dateStr}</h3>
+      <p>今日共 7 节课</p>
+      <div class="today-pills">${pills}</div>
+    </div>`;
+}
+
+function renderSchedLegend() {
+  const counts = {};
+  SCHED_DATA.forEach(row => row.classes.forEach(s => { counts[s] = (counts[s] || 0) + 1; }));
+  const el = document.getElementById('sched-legend');
+  el.innerHTML = Object.entries(SUBJS)
+    .filter(([k]) => counts[k])
+    .sort((a, b) => (counts[b[0]] || 0) - (counts[a[0]] || 0))
+    .map(([key, s]) => `<div class="legend-pill">
+      <div class="legend-swatch" style="background:${s.color}"></div>
+      ${s.name}<span style="color:var(--text3);font-size:.7rem;margin-left:2px">${counts[key]}节/周</span>
+    </div>`).join('');
+}
+
+let hwItems = [];
+
+function loadHW() {
+  try { hwItems = JSON.parse(localStorage.getItem('szprimary_hw') || '[]'); } catch { hwItems = []; }
+}
+
+function saveHW() {
+  localStorage.setItem('szprimary_hw', JSON.stringify(hwItems));
+}
+
+function renderHW() {
+  const list = document.getElementById('hw-list');
+  const empty = document.getElementById('hw-empty');
+  if (!hwItems.length) { list.innerHTML = ''; empty.style.display = ''; return; }
+  empty.style.display = 'none';
+  list.innerHTML = hwItems.map((hw, i) => {
+    const s = SUBJS[hw.subj] || SUBJS.other;
+    return `<li class="hw-item${hw.done ? ' hw-done' : ''}">
+      <div class="hw-chk${hw.done ? ' on' : ''}" onclick="toggleHW(${i})">${hw.done ? '✓' : ''}</div>
+      <span class="hw-tag" style="background:${s.color}">${s.name}</span>
+      <span class="hw-lbl">${hw.text}</span>
+      <button class="hw-del" onclick="deleteHW(${i})">✕</button>
+    </li>`;
+  }).join('');
+}
+
+function addHomework() {
+  const subjEl = document.getElementById('hw-subj');
+  const inpEl = document.getElementById('hw-inp');
+  const text = inpEl.value.trim();
+  if (!text) { inpEl.focus(); return; }
+  hwItems.push({ subj: subjEl.value, text, done: false });
+  saveHW(); renderHW();
+  inpEl.value = ''; inpEl.focus();
+}
+
+function toggleHW(i) { hwItems[i].done = !hwItems[i].done; saveHW(); renderHW(); }
+function deleteHW(i) { hwItems.splice(i, 1); saveHW(); renderHW(); }
+
+function initSchedule() {
+  renderScheduleHead();
+  renderScheduleBody();
+  renderTodayBanner();
+  renderSchedLegend();
+  loadHW(); renderHW();
+}
 </script>
 </body>
 </html>
