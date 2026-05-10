@@ -757,6 +757,27 @@
   .hw-del { cursor: pointer; background: none; border: none; color: var(--text3); padding: 3px 6px; border-radius: 5px; transition: var(--transition); line-height: 1; }
   .hw-del:hover { background: rgba(239,68,68,.1); color: var(--danger); }
   .hw-empty { text-align: center; color: var(--text3); padding: 24px; font-size: 0.88rem; }
+
+  /* ============ EARNINGS TRACKER ============ */
+  .earn-summary-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 24px; }
+  @media (max-width: 600px) { .earn-summary-grid { grid-template-columns: 1fr; } }
+  .earn-stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 18px; text-align: center; box-shadow: var(--shadow); }
+  .earn-stat-label { font-size: .78rem; color: var(--text3); margin-bottom: 6px; }
+  .earn-stat-val { font-size: 1.7rem; font-weight: 700; color: var(--primary); font-variant-numeric: tabular-nums; }
+  .earn-stat-sub { font-size: .72rem; color: var(--text3); margin-top: 4px; }
+  .earn-form-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+  .earn-form-row input, .earn-form-row select { flex: 1; min-width: 120px; }
+  .earn-list { list-style: none; margin-top: 8px; }
+  .earn-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .earn-item:last-child { border-bottom: none; }
+  .earn-date-badge { font-size: .72rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 2px 8px; color: var(--text2); white-space: nowrap; }
+  .earn-note { flex: 1; font-size: .88rem; color: var(--text); }
+  .earn-amt { font-weight: 700; color: var(--success); font-size: .95rem; white-space: nowrap; }
+  .earn-del { background: none; border: none; cursor: pointer; color: var(--text3); font-size: .85rem; padding: 2px 6px; border-radius: 4px; }
+  .earn-del:hover { background: var(--danger); color: #fff; }
+  .earn-empty { text-align: center; color: var(--text3); padding: 32px 0; font-size: .9rem; }
+  .earn-month-head { font-size: .78rem; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .06em; padding: 10px 0 4px; border-top: 1px solid var(--border); margin-top: 6px; }
+  .earn-month-head:first-child { border-top: none; margin-top: 0; }
 </style>
 </head>
 <body>
@@ -785,6 +806,7 @@
     <div class="nav-tab" onclick="switchTab('reading')">📄 阅读技巧</div>
     <div class="nav-tab" onclick="switchTab('listening')">🎧 听力技巧</div>
     <div class="nav-tab" onclick="switchTab('schedule')">📅 小学课表</div>
+    <div class="nav-tab" onclick="switchTab('earnings')">💰 每日收入</div>
   </div>
 </div>
 
@@ -1308,6 +1330,52 @@
   </div>
 </div>
 
+
+<div id="tab-earnings" class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-title">💰 每日收入记录</div>
+      <div class="section-sub">记录每日收入 · 自动统计今日 / 本周 / 本月合计</div>
+    </div>
+  </div>
+
+  <div class="earn-summary-grid">
+    <div class="earn-stat-card">
+      <div class="earn-stat-label">今日收入</div>
+      <div class="earn-stat-val" id="earn-today">¥0.00</div>
+      <div class="earn-stat-sub" id="earn-today-count">0 笔</div>
+    </div>
+    <div class="earn-stat-card">
+      <div class="earn-stat-label">本周收入</div>
+      <div class="earn-stat-val" id="earn-week">¥0.00</div>
+      <div class="earn-stat-sub" id="earn-week-count">0 笔</div>
+    </div>
+    <div class="earn-stat-card">
+      <div class="earn-stat-label">本月收入</div>
+      <div class="earn-stat-val" id="earn-month">¥0.00</div>
+      <div class="earn-stat-sub" id="earn-month-count">0 笔</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:14px">➕ 添加收入记录</h3>
+    <div class="earn-form-row">
+      <input type="date" id="earn-date" class="hw-inp" style="max-width:160px">
+      <input type="number" id="earn-amount" class="hw-inp" placeholder="金额（元）" min="0" step="0.01" style="max-width:160px"
+             onkeydown="if(event.key==='Enter')addEarning()">
+      <input type="text" id="earn-note" class="hw-inp" placeholder="备注（课时费 / 家教 / 其他）" maxlength="60"
+             onkeydown="if(event.key==='Enter')addEarning()">
+      <button class="btn btn-primary" onclick="addEarning()">+ 添加</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:6px">📋 收入明细</h3>
+    <ul class="earn-list" id="earn-list"></ul>
+    <div class="earn-empty" id="earn-empty">暂无收入记录 · 添加第一笔吧！</div>
+  </div>
+</div>
+
 </div><!-- end .main -->
 
 <script>
@@ -1325,10 +1393,11 @@ function switchTab(tab) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
-  const tabs = ['vocab','writing','speaking','reading','listening','schedule'];
+  const tabs = ['vocab','writing','speaking','reading','listening','schedule','earnings'];
   const idx = tabs.indexOf(tab);
   document.querySelectorAll('.nav-tab')[idx].classList.add('active');
   if (tab === 'schedule') initSchedule();
+  if (tab === 'earnings') initEarnings();
 }
 
 // ============ VOCABULARY DATA ============
@@ -2073,6 +2142,113 @@ function initSchedule() {
   renderTodayBanner();
   renderSchedLegend();
   loadHW(); renderHW();
+}
+
+// ============ EARNINGS TRACKER ============
+let earnItems = [];
+
+function loadEarnings() {
+  try { earnItems = JSON.parse(localStorage.getItem('ielts_earnings') || '[]'); } catch { earnItems = []; }
+}
+
+function saveEarnings() {
+  localStorage.setItem('ielts_earnings', JSON.stringify(earnItems));
+}
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function fmtMoney(v) {
+  return '¥' + v.toFixed(2);
+}
+
+function getWeekStart() {
+  const d = new Date();
+  const day = d.getDay() || 7;
+  d.setDate(d.getDate() - day + 1);
+  return d.toISOString().slice(0, 10);
+}
+
+function getMonthStart() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`;
+}
+
+function updateEarnStats() {
+  const today = todayStr();
+  const weekStart = getWeekStart();
+  const monthStart = getMonthStart();
+
+  let todayAmt = 0, todayCnt = 0;
+  let weekAmt = 0, weekCnt = 0;
+  let monthAmt = 0, monthCnt = 0;
+
+  earnItems.forEach(e => {
+    const amt = parseFloat(e.amount) || 0;
+    if (e.date === today) { todayAmt += amt; todayCnt++; }
+    if (e.date >= weekStart) { weekAmt += amt; weekCnt++; }
+    if (e.date >= monthStart) { monthAmt += amt; monthCnt++; }
+  });
+
+  document.getElementById('earn-today').textContent = fmtMoney(todayAmt);
+  document.getElementById('earn-today-count').textContent = todayCnt + ' 笔';
+  document.getElementById('earn-week').textContent = fmtMoney(weekAmt);
+  document.getElementById('earn-week-count').textContent = weekCnt + ' 笔';
+  document.getElementById('earn-month').textContent = fmtMoney(monthAmt);
+  document.getElementById('earn-month-count').textContent = monthCnt + ' 笔';
+}
+
+function renderEarnings() {
+  const list = document.getElementById('earn-list');
+  const empty = document.getElementById('earn-empty');
+  if (!earnItems.length) { list.innerHTML = ''; empty.style.display = ''; updateEarnStats(); return; }
+  empty.style.display = 'none';
+
+  const sorted = [...earnItems].map((e, i) => ({ ...e, idx: i }))
+    .sort((a, b) => b.date.localeCompare(a.date) || b.idx - a.idx);
+
+  let html = '';
+  let lastMonth = '';
+  sorted.forEach(e => {
+    const ym = e.date.slice(0, 7);
+    if (ym !== lastMonth) {
+      const [y, m] = ym.split('-');
+      html += `<div class="earn-month-head">${y}年${parseInt(m)}月</div>`;
+      lastMonth = ym;
+    }
+    html += `<li class="earn-item">
+      <span class="earn-date-badge">${e.date}</span>
+      <span class="earn-note">${e.note || '—'}</span>
+      <span class="earn-amt">${fmtMoney(parseFloat(e.amount) || 0)}</span>
+      <button class="earn-del" onclick="deleteEarning(${e.idx})" title="删除">✕</button>
+    </li>`;
+  });
+  list.innerHTML = html;
+  updateEarnStats();
+}
+
+function addEarning() {
+  const dateEl = document.getElementById('earn-date');
+  const amtEl = document.getElementById('earn-amount');
+  const noteEl = document.getElementById('earn-note');
+  const date = dateEl.value || todayStr();
+  const amount = parseFloat(amtEl.value);
+  if (!amount || amount <= 0) { amtEl.focus(); return; }
+  earnItems.push({ date, amount: amount.toFixed(2), note: noteEl.value.trim() });
+  saveEarnings(); renderEarnings();
+  amtEl.value = ''; noteEl.value = ''; amtEl.focus();
+}
+
+function deleteEarning(i) {
+  earnItems.splice(i, 1);
+  saveEarnings(); renderEarnings();
+}
+
+function initEarnings() {
+  const dateEl = document.getElementById('earn-date');
+  if (!dateEl.value) dateEl.value = todayStr();
+  loadEarnings(); renderEarnings();
 }
 </script>
 </body>
