@@ -785,6 +785,7 @@
     <div class="nav-tab" onclick="switchTab('reading')">📄 阅读技巧</div>
     <div class="nav-tab" onclick="switchTab('listening')">🎧 听力技巧</div>
     <div class="nav-tab" onclick="switchTab('schedule')">📅 小学课表</div>
+    <div class="nav-tab" onclick="switchTab('earnings')">💰 每日收入</div>
   </div>
 </div>
 
@@ -1308,6 +1309,56 @@
   </div>
 </div>
 
+<!-- ===== EARNINGS ===== -->
+<div id="tab-earnings" class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-title">💰 每日收入</div>
+      <div class="section-sub">每天收入记录 · 自动统计汇总</div>
+    </div>
+  </div>
+
+  <div class="two-col" style="margin-bottom:20px">
+    <div class="card" style="text-align:center">
+      <div style="font-size:.8rem;color:var(--text3);margin-bottom:6px">今日收入</div>
+      <div id="earn-today" style="font-size:2rem;font-weight:700;color:var(--success)">¥0.00</div>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:.8rem;color:var(--text3);margin-bottom:6px">本月累计</div>
+      <div id="earn-month" style="font-size:2rem;font-weight:700;color:var(--primary)">¥0.00</div>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:.8rem;color:var(--text3);margin-bottom:6px">历史总计</div>
+      <div id="earn-total" style="font-size:2rem;font-weight:700;color:var(--accent)">¥0.00</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h3 style="font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:14px">➕ 添加收入记录</h3>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <label style="font-size:.75rem;color:var(--text3)">日期</label>
+        <input type="date" id="earn-date" style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);font-size:.9rem">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <label style="font-size:.75rem;color:var(--text3)">金额 (¥)</label>
+        <input type="number" id="earn-amount" min="0" step="0.01" placeholder="0.00" style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);font-size:.9rem;width:130px" onkeydown="if(event.key==='Enter')addEarning()">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:160px">
+        <label style="font-size:.75rem;color:var(--text3)">备注 (可选)</label>
+        <input type="text" id="earn-note" placeholder="收入来源说明..." maxlength="60" style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);font-size:.9rem" onkeydown="if(event.key==='Enter')addEarning()">
+      </div>
+      <button class="btn btn-primary" onclick="addEarning()" style="height:38px;padding:0 20px">+ 添加</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:14px">📋 收入记录</h3>
+    <div id="earn-list"></div>
+    <div id="earn-empty" style="text-align:center;color:var(--text3);padding:32px 0;font-size:.9rem">暂无记录 · 添加第一笔收入吧 💪</div>
+  </div>
+</div>
+
 </div><!-- end .main -->
 
 <script>
@@ -1325,10 +1376,11 @@ function switchTab(tab) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
-  const tabs = ['vocab','writing','speaking','reading','listening','schedule'];
+  const tabs = ['vocab','writing','speaking','reading','listening','schedule','earnings'];
   const idx = tabs.indexOf(tab);
   document.querySelectorAll('.nav-tab')[idx].classList.add('active');
   if (tab === 'schedule') initSchedule();
+  if (tab === 'earnings') initEarnings();
 }
 
 // ============ VOCABULARY DATA ============
@@ -2073,6 +2125,88 @@ function initSchedule() {
   renderTodayBanner();
   renderSchedLegend();
   loadHW(); renderHW();
+}
+
+// ============ EARNINGS TRACKER ============
+let earningsData = [];
+
+function loadEarnings() {
+  try { earningsData = JSON.parse(localStorage.getItem('ielts_earnings') || '[]'); } catch { earningsData = []; }
+}
+
+function saveEarnings() {
+  localStorage.setItem('ielts_earnings', JSON.stringify(earningsData));
+}
+
+function fmt(amount) {
+  return '¥' + Number(amount).toFixed(2);
+}
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function renderEarnings() {
+  const today = todayStr();
+  const thisMonth = today.slice(0, 7);
+
+  let todaySum = 0, monthSum = 0, totalSum = 0;
+  earningsData.forEach(e => {
+    totalSum += e.amount;
+    if (e.date === today) todaySum += e.amount;
+    if (e.date.startsWith(thisMonth)) monthSum += e.amount;
+  });
+
+  document.getElementById('earn-today').textContent = fmt(todaySum);
+  document.getElementById('earn-month').textContent = fmt(monthSum);
+  document.getElementById('earn-total').textContent = fmt(totalSum);
+
+  const list = document.getElementById('earn-list');
+  const empty = document.getElementById('earn-empty');
+
+  if (!earningsData.length) {
+    list.innerHTML = '';
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const sorted = earningsData.map((e, i) => ({ ...e, idx: i })).sort((a, b) => b.date.localeCompare(a.date) || b.idx - a.idx);
+
+  list.innerHTML = sorted.map(e => `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="font-size:.82rem;color:var(--text3);min-width:90px">${e.date}</div>
+      <div style="font-size:1.05rem;font-weight:700;color:var(--success);min-width:90px">${fmt(e.amount)}</div>
+      <div style="flex:1;font-size:.88rem;color:var(--text2)">${e.note || ''}</div>
+      <button onclick="deleteEarning(${e.idx})" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:1rem;padding:4px 8px;border-radius:4px" title="删除">✕</button>
+    </div>`).join('');
+}
+
+function addEarning() {
+  const dateEl = document.getElementById('earn-date');
+  const amtEl = document.getElementById('earn-amount');
+  const noteEl = document.getElementById('earn-note');
+  const amount = parseFloat(amtEl.value);
+  if (!amtEl.value || isNaN(amount) || amount <= 0) { amtEl.focus(); return; }
+  earningsData.push({ date: dateEl.value || todayStr(), amount, note: noteEl.value.trim() });
+  saveEarnings();
+  renderEarnings();
+  amtEl.value = '';
+  noteEl.value = '';
+  amtEl.focus();
+}
+
+function deleteEarning(idx) {
+  earningsData.splice(idx, 1);
+  saveEarnings();
+  renderEarnings();
+}
+
+function initEarnings() {
+  const dateEl = document.getElementById('earn-date');
+  if (!dateEl.value) dateEl.value = todayStr();
+  loadEarnings();
+  renderEarnings();
 }
 </script>
 </body>
