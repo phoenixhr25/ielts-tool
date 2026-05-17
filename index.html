@@ -757,6 +757,30 @@
   .hw-del { cursor: pointer; background: none; border: none; color: var(--text3); padding: 3px 6px; border-radius: 5px; transition: var(--transition); line-height: 1; }
   .hw-del:hover { background: rgba(239,68,68,.1); color: var(--danger); }
   .hw-empty { text-align: center; color: var(--text3); padding: 24px; font-size: 0.88rem; }
+  /* EARNINGS */
+  .earn-stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+  @media (max-width: 700px) { .earn-stats-row { grid-template-columns: repeat(2,1fr); } }
+  .earn-stat-card { background: var(--surface); border-radius: var(--radius); padding: 20px 16px; text-align: center; box-shadow: var(--shadow); border: 1px solid var(--border); }
+  .earn-stat-label { font-size: 0.8rem; color: var(--text2); margin-bottom: 8px; }
+  .earn-stat-val { font-size: 1.6rem; font-weight: 700; color: var(--primary); }
+  .earn-stat-card.today-card .earn-stat-val { color: var(--success); }
+  .earn-form-card, .earn-history-card { background: var(--surface); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+  .earn-form-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+  .earn-form-group { display: flex; flex-direction: column; gap: 6px; }
+  .earn-form-wide { flex: 1; min-width: 180px; }
+  .earn-form-label { font-size: 0.8rem; color: var(--text2); font-weight: 500; }
+  .earn-input { padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface2); color: var(--text); font-size: 0.95rem; transition: var(--transition); outline: none; }
+  .earn-input:focus { border-color: var(--primary); background: var(--surface); }
+  .earn-add-btn { background: var(--primary); color: #fff; border: none; padding: 10px 24px; border-radius: var(--radius-sm); font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: var(--transition); white-space: nowrap; }
+  .earn-add-btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+  .earn-item { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .earn-item:last-child { border-bottom: none; }
+  .earn-item-date { color: var(--text2); font-size: 0.85rem; min-width: 96px; }
+  .earn-item-amount { font-weight: 700; color: var(--success); font-size: 1.05rem; min-width: 90px; }
+  .earn-item-note { flex: 1; color: var(--text); font-size: 0.9rem; }
+  .earn-item-del { background: none; border: 1px solid var(--border); color: var(--text3); border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 0.8rem; transition: var(--transition); }
+  .earn-item-del:hover { border-color: var(--danger); color: var(--danger); }
+  .earn-day-group { font-size: 0.78rem; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; padding: 10px 0 4px; border-bottom: 1px dashed var(--border); margin-top: 8px; display: flex; justify-content: space-between; }
 </style>
 </head>
 <body>
@@ -785,6 +809,7 @@
     <div class="nav-tab" onclick="switchTab('reading')">📄 阅读技巧</div>
     <div class="nav-tab" onclick="switchTab('listening')">🎧 听力技巧</div>
     <div class="nav-tab" onclick="switchTab('schedule')">📅 小学课表</div>
+    <div class="nav-tab" onclick="switchTab('earnings')">💰 每日收入</div>
   </div>
 </div>
 
@@ -1308,6 +1333,59 @@
   </div>
 </div>
 
+<div id="tab-earnings" class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-title">💰 每日收入</div>
+      <div class="section-sub">记录每日收入 · 查看收入统计</div>
+    </div>
+  </div>
+
+  <div class="earn-stats-row">
+    <div class="earn-stat-card today-card">
+      <div class="earn-stat-label">今日收入</div>
+      <div class="earn-stat-val" id="earn-today">¥0.00</div>
+    </div>
+    <div class="earn-stat-card">
+      <div class="earn-stat-label">本周收入</div>
+      <div class="earn-stat-val" id="earn-week">¥0.00</div>
+    </div>
+    <div class="earn-stat-card">
+      <div class="earn-stat-label">本月收入</div>
+      <div class="earn-stat-val" id="earn-month">¥0.00</div>
+    </div>
+    <div class="earn-stat-card">
+      <div class="earn-stat-label">累计收入</div>
+      <div class="earn-stat-val" id="earn-total">¥0.00</div>
+    </div>
+  </div>
+
+  <div class="earn-form-card">
+    <h3 style="margin-bottom:16px;font-size:1rem;color:var(--text)">➕ 添加收入记录</h3>
+    <div class="earn-form-row">
+      <div class="earn-form-group">
+        <label class="earn-form-label">日期</label>
+        <input type="date" id="earn-date" class="earn-input">
+      </div>
+      <div class="earn-form-group">
+        <label class="earn-form-label">金额 (¥)</label>
+        <input type="number" id="earn-amount" class="earn-input" placeholder="0.00" min="0" step="0.01" onkeydown="if(event.key==='Enter')addEarning()">
+      </div>
+      <div class="earn-form-group earn-form-wide">
+        <label class="earn-form-label">备注 (学生 / 课程)</label>
+        <input type="text" id="earn-note" class="earn-input" placeholder="例如：张同学 · 雅思写作课" maxlength="80" onkeydown="if(event.key==='Enter')addEarning()">
+      </div>
+      <button class="earn-add-btn" onclick="addEarning()">添加</button>
+    </div>
+  </div>
+
+  <div class="earn-history-card">
+    <h3 style="margin-bottom:16px;font-size:1rem;color:var(--text)">📋 收入记录</h3>
+    <div id="earn-empty" style="text-align:center;color:var(--text3);padding:32px 0;font-size:.9rem">暂无记录，添加第一条收入吧！</div>
+    <div id="earn-list"></div>
+  </div>
+</div>
+
 </div><!-- end .main -->
 
 <script>
@@ -1325,10 +1403,11 @@ function switchTab(tab) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
-  const tabs = ['vocab','writing','speaking','reading','listening','schedule'];
+  const tabs = ['vocab','writing','speaking','reading','listening','schedule','earnings'];
   const idx = tabs.indexOf(tab);
   document.querySelectorAll('.nav-tab')[idx].classList.add('active');
   if (tab === 'schedule') initSchedule();
+  if (tab === 'earnings') initEarnings();
 }
 
 // ============ VOCABULARY DATA ============
@@ -2073,6 +2152,119 @@ function initSchedule() {
   renderTodayBanner();
   renderSchedLegend();
   loadHW(); renderHW();
+}
+
+// ============ EARNINGS ============
+let earningItems = [];
+
+function loadEarnings() {
+  try { earningItems = JSON.parse(localStorage.getItem('earnings_log') || '[]'); } catch { earningItems = []; }
+}
+
+function saveEarnings() {
+  localStorage.setItem('earnings_log', JSON.stringify(earningItems));
+}
+
+function fmtMoney(n) {
+  return '¥' + (parseFloat(n) || 0).toFixed(2);
+}
+
+function renderEarnings() {
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+  const dow = now.getDay();
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1));
+  const weekStartStr = weekStart.toISOString().slice(0, 10);
+  const monthStartStr = todayStr.slice(0, 7) + '-01';
+
+  let todayTotal = 0, weekTotal = 0, monthTotal = 0, allTotal = 0;
+  earningItems.forEach(e => {
+    const amt = parseFloat(e.amount) || 0;
+    allTotal += amt;
+    if (e.date >= monthStartStr) monthTotal += amt;
+    if (e.date >= weekStartStr) weekTotal += amt;
+    if (e.date === todayStr) todayTotal += amt;
+  });
+
+  document.getElementById('earn-today').textContent = fmtMoney(todayTotal);
+  document.getElementById('earn-week').textContent = fmtMoney(weekTotal);
+  document.getElementById('earn-month').textContent = fmtMoney(monthTotal);
+  document.getElementById('earn-total').textContent = fmtMoney(allTotal);
+
+  const empty = document.getElementById('earn-empty');
+  const list = document.getElementById('earn-list');
+
+  if (!earningItems.length) {
+    empty.style.display = '';
+    list.innerHTML = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  // Sort descending by date then insertion order
+  const sorted = earningItems.map((e, i) => ({ ...e, idx: i })).sort((a, b) => b.date.localeCompare(a.date) || b.idx - a.idx);
+
+  // Group by date
+  let lastDate = null;
+  let html = '';
+  sorted.forEach(e => {
+    if (e.date !== lastDate) {
+      if (lastDate !== null) {
+        const dayTotal = sorted.filter(x => x.date === lastDate).reduce((s, x) => s + (parseFloat(x.amount) || 0), 0);
+        html = html.replace(`__DAYTOTAL_${lastDate}__`, fmtMoney(dayTotal));
+      }
+      const label = e.date === todayStr ? `${e.date} · 今天` : e.date;
+      html += `<div class="earn-day-group"><span>${label}</span><span id="dt-${e.date}">__DAYTOTAL_${e.date}__</span></div>`;
+      lastDate = e.date;
+    }
+    html += `<div class="earn-item">
+      <span class="earn-item-amount">+${fmtMoney(e.amount)}</span>
+      <span class="earn-item-note">${e.note || '—'}</span>
+      <button class="earn-item-del" onclick="deleteEarning(${e.idx})">删除</button>
+    </div>`;
+  });
+  if (lastDate) {
+    const dayTotal = sorted.filter(x => x.date === lastDate).reduce((s, x) => s + (parseFloat(x.amount) || 0), 0);
+    html = html.replace(`__DAYTOTAL_${lastDate}__`, fmtMoney(dayTotal));
+  }
+  list.innerHTML = html;
+}
+
+function addEarning() {
+  const dateEl = document.getElementById('earn-date');
+  const amtEl = document.getElementById('earn-amount');
+  const noteEl = document.getElementById('earn-note');
+  const date = dateEl.value;
+  const amount = parseFloat(amtEl.value);
+  const note = noteEl.value.trim();
+
+  if (!date) { dateEl.focus(); return; }
+  if (!amount || amount <= 0) { amtEl.focus(); return; }
+
+  earningItems.push({ date, amount, note });
+  saveEarnings();
+  renderEarnings();
+  amtEl.value = '';
+  noteEl.value = '';
+  amtEl.focus();
+}
+
+function deleteEarning(i) {
+  if (!confirm('确定删除这条记录吗？')) return;
+  earningItems.splice(i, 1);
+  saveEarnings();
+  renderEarnings();
+}
+
+let earningsInited = false;
+function initEarnings() {
+  if (!earningsInited) {
+    document.getElementById('earn-date').value = new Date().toISOString().slice(0, 10);
+    earningsInited = true;
+  }
+  loadEarnings();
+  renderEarnings();
 }
 </script>
 </body>
