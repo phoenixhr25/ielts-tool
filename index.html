@@ -757,6 +757,64 @@
   .hw-del { cursor: pointer; background: none; border: none; color: var(--text3); padding: 3px 6px; border-radius: 5px; transition: var(--transition); line-height: 1; }
   .hw-del:hover { background: rgba(239,68,68,.1); color: var(--danger); }
   .hw-empty { text-align: center; color: var(--text3); padding: 24px; font-size: 0.88rem; }
+
+  /* ===== EARNINGS ===== */
+  .earn-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .earn-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px 18px;
+    text-align: center;
+  }
+  .earn-card .earn-val {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--success);
+    line-height: 1.1;
+  }
+  .earn-card .earn-lbl { font-size: 0.78rem; color: var(--text2); margin-top: 4px; }
+  .earn-form {
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 20px;
+  }
+  .earn-inp, .earn-sel, .earn-date {
+    padding: 9px 12px; border-radius: 9px; border: 1.5px solid var(--border);
+    background: var(--surface); color: var(--text); font-size: 0.88rem; font-family: inherit;
+    transition: var(--transition);
+  }
+  .earn-inp:focus, .earn-sel:focus, .earn-date:focus {
+    outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+  }
+  .earn-amt { width: 130px; }
+  .earn-note { flex: 1; min-width: 160px; }
+  .earn-list { list-style: none; }
+  .earn-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; background: var(--surface2); border-radius: 10px;
+    margin-bottom: 8px; border: 1px solid var(--border);
+  }
+  .earn-item-date { font-size: 0.75rem; font-weight: 700; color: var(--text3); min-width: 68px; }
+  .earn-item-src {
+    font-size: 0.72rem; font-weight: 700; color: #fff;
+    padding: 2px 8px; border-radius: 8px; white-space: nowrap;
+  }
+  .earn-item-note { flex: 1; font-size: 0.87rem; color: var(--text); }
+  .earn-item-amt { font-size: 1rem; font-weight: 700; color: var(--success); white-space: nowrap; }
+  .earn-del { cursor: pointer; background: none; border: none; color: var(--text3); padding: 3px 6px; border-radius: 5px; transition: var(--transition); line-height: 1; }
+  .earn-del:hover { background: rgba(239,68,68,.1); color: var(--danger); }
+  .earn-empty { text-align: center; color: var(--text3); padding: 24px; font-size: 0.88rem; }
+  .earn-bar-section { margin-top: 8px; }
+  .earn-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .earn-bar-lbl { font-size: 0.78rem; color: var(--text2); min-width: 70px; text-align: right; }
+  .earn-bar-outer { flex: 1; background: var(--surface3); border-radius: 6px; height: 14px; overflow: hidden; }
+  .earn-bar-inner { height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--success), var(--secondary)); transition: width .5s ease; }
+  .earn-bar-val { font-size: 0.78rem; font-weight: 700; color: var(--success); min-width: 70px; }
+  .earn-filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
 </style>
 </head>
 <body>
@@ -785,6 +843,7 @@
     <div class="nav-tab" onclick="switchTab('reading')">📄 阅读技巧</div>
     <div class="nav-tab" onclick="switchTab('listening')">🎧 听力技巧</div>
     <div class="nav-tab" onclick="switchTab('schedule')">📅 小学课表</div>
+    <div class="nav-tab" onclick="switchTab('earnings')">💰 每日收入</div>
   </div>
 </div>
 
@@ -1308,6 +1367,53 @@
   </div>
 </div>
 
+<!-- ===== EARNINGS ===== -->
+<div id="tab-earnings" class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-title">💰 每日收入记录</div>
+      <div class="section-sub">记录每天的收入，一目了然</div>
+    </div>
+    <button class="btn btn-outline" onclick="resetEarnings()" style="font-size:0.82rem">🗑 清空所有</button>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="earn-summary" id="earn-summary"></div>
+
+  <!-- Add Entry Form -->
+  <div class="card">
+    <h3 style="font-size:.95rem;font-weight:600;margin-bottom:14px">➕ 添加收入记录</h3>
+    <div class="earn-form">
+      <input type="date" class="earn-date" id="earn-date">
+      <select class="earn-sel" id="earn-src">
+        <option value="teaching">📚 教学</option>
+        <option value="tutoring">🎓 家教</option>
+        <option value="online">💻 线上课</option>
+        <option value="ielts">📖 雅思辅导</option>
+        <option value="other">💼 其他</option>
+      </select>
+      <input type="number" class="earn-inp earn-amt" id="earn-amt" placeholder="金额 (¥)" min="0" step="0.01">
+      <input type="text" class="earn-inp earn-note" id="earn-note" placeholder="备注（可选）" maxlength="50" onkeydown="if(event.key==='Enter')addEarning()">
+      <button class="btn btn-success" onclick="addEarning()">+ 记录</button>
+    </div>
+
+    <!-- History list -->
+    <div class="earn-filter-row">
+      <button class="filter-btn active" onclick="filterEarnings('all',this)">全部</button>
+      <button class="filter-btn" onclick="filterEarnings('week',this)">本周</button>
+      <button class="filter-btn" onclick="filterEarnings('month',this)">本月</button>
+    </div>
+    <ul class="earn-list" id="earn-list"></ul>
+    <div class="earn-empty" id="earn-empty">暂无收入记录 · 开始记录你的第一笔收入吧！💪</div>
+  </div>
+
+  <!-- Weekly bar chart -->
+  <div class="card">
+    <h3 style="font-size:.95rem;font-weight:600;margin-bottom:14px">📊 近7天收入</h3>
+    <div id="earn-bars"></div>
+  </div>
+</div>
+
 </div><!-- end .main -->
 
 <script>
@@ -1325,10 +1431,11 @@ function switchTab(tab) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
-  const tabs = ['vocab','writing','speaking','reading','listening','schedule'];
+  const tabs = ['vocab','writing','speaking','reading','listening','schedule','earnings'];
   const idx = tabs.indexOf(tab);
   document.querySelectorAll('.nav-tab')[idx].classList.add('active');
   if (tab === 'schedule') initSchedule();
+  if (tab === 'earnings') initEarnings();
 }
 
 // ============ VOCABULARY DATA ============
@@ -2073,6 +2180,170 @@ function initSchedule() {
   renderTodayBanner();
   renderSchedLegend();
   loadHW(); renderHW();
+}
+
+// ============ EARNINGS ============
+const EARN_KEY = 'ielts_earnings';
+const EARN_SRCS = {
+  teaching: { label: '教学',    color: '#2563eb' },
+  tutoring: { label: '家教',    color: '#6366f1' },
+  online:   { label: '线上课',  color: '#0ea5e9' },
+  ielts:    { label: '雅思辅导', color: '#10b981' },
+  other:    { label: '其他',    color: '#94a3b8' },
+};
+let earnFilter = 'all';
+
+function loadEarnings() {
+  try { return JSON.parse(localStorage.getItem(EARN_KEY) || '[]'); } catch { return []; }
+}
+
+function saveEarnings(arr) {
+  localStorage.setItem(EARN_KEY, JSON.stringify(arr));
+}
+
+function todayStr() {
+  const d = new Date();
+  return d.toISOString().slice(0, 10);
+}
+
+function fmtDate(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric', weekday: 'short' });
+}
+
+function addEarning() {
+  const dateEl  = document.getElementById('earn-date');
+  const srcEl   = document.getElementById('earn-src');
+  const amtEl   = document.getElementById('earn-amt');
+  const noteEl  = document.getElementById('earn-note');
+  const amt = parseFloat(amtEl.value);
+  if (!dateEl.value || isNaN(amt) || amt <= 0) {
+    amtEl.focus();
+    amtEl.style.borderColor = 'var(--danger)';
+    setTimeout(() => { amtEl.style.borderColor = ''; }, 1500);
+    return;
+  }
+  const items = loadEarnings();
+  items.unshift({ id: Date.now(), date: dateEl.value, src: srcEl.value, amt: Math.round(amt * 100) / 100, note: noteEl.value.trim() });
+  saveEarnings(items);
+  amtEl.value = '';
+  noteEl.value = '';
+  renderEarnings();
+  renderEarnSummary();
+  renderEarnBars();
+}
+
+function deleteEarning(id) {
+  const items = loadEarnings().filter(e => e.id !== id);
+  saveEarnings(items);
+  renderEarnings();
+  renderEarnSummary();
+  renderEarnBars();
+}
+
+function resetEarnings() {
+  if (!confirm('确定要清空所有收入记录吗？此操作不可撤销。')) return;
+  saveEarnings([]);
+  renderEarnings();
+  renderEarnSummary();
+  renderEarnBars();
+}
+
+function filterEarnings(f, btn) {
+  earnFilter = f;
+  document.querySelectorAll('#tab-earnings .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderEarnings();
+}
+
+function getFilteredItems() {
+  const items = loadEarnings();
+  if (earnFilter === 'all') return items;
+  const now = new Date();
+  if (earnFilter === 'month') {
+    const m = now.getMonth(), y = now.getFullYear();
+    return items.filter(e => { const d = new Date(e.date + 'T00:00:00'); return d.getMonth() === m && d.getFullYear() === y; });
+  }
+  if (earnFilter === 'week') {
+    const day = now.getDay() === 0 ? 6 : now.getDay() - 1;
+    const mon = new Date(now); mon.setDate(now.getDate() - day); mon.setHours(0,0,0,0);
+    return items.filter(e => new Date(e.date + 'T00:00:00') >= mon);
+  }
+  return items;
+}
+
+function renderEarnings() {
+  const list = document.getElementById('earn-list');
+  const empty = document.getElementById('earn-empty');
+  const items = getFilteredItems();
+  if (!items.length) { list.innerHTML = ''; empty.style.display = ''; return; }
+  empty.style.display = 'none';
+  list.innerHTML = items.map(e => {
+    const s = EARN_SRCS[e.src] || EARN_SRCS.other;
+    return `<li class="earn-item">
+      <span class="earn-item-date">${fmtDate(e.date)}</span>
+      <span class="earn-item-src" style="background:${s.color}">${s.label}</span>
+      <span class="earn-item-note">${e.note || '—'}</span>
+      <span class="earn-item-amt">¥${e.amt.toFixed(2)}</span>
+      <button class="earn-del" onclick="deleteEarning(${e.id})">✕</button>
+    </li>`;
+  }).join('');
+}
+
+function renderEarnSummary() {
+  const all = loadEarnings();
+  const today = todayStr();
+  const now = new Date();
+  const day = now.getDay() === 0 ? 6 : now.getDay() - 1;
+  const mon = new Date(now); mon.setDate(now.getDate() - day); mon.setHours(0,0,0,0);
+  const m = now.getMonth(), y = now.getFullYear();
+
+  const todayAmt  = all.filter(e => e.date === today).reduce((s, e) => s + e.amt, 0);
+  const weekAmt   = all.filter(e => new Date(e.date + 'T00:00:00') >= mon).reduce((s, e) => s + e.amt, 0);
+  const monthAmt  = all.filter(e => { const d = new Date(e.date + 'T00:00:00'); return d.getMonth() === m && d.getFullYear() === y; }).reduce((s, e) => s + e.amt, 0);
+  const totalAmt  = all.reduce((s, e) => s + e.amt, 0);
+
+  document.getElementById('earn-summary').innerHTML = `
+    <div class="earn-card"><div class="earn-val">¥${todayAmt.toFixed(2)}</div><div class="earn-lbl">今日收入</div></div>
+    <div class="earn-card"><div class="earn-val">¥${weekAmt.toFixed(2)}</div><div class="earn-lbl">本周收入</div></div>
+    <div class="earn-card"><div class="earn-val">¥${monthAmt.toFixed(2)}</div><div class="earn-lbl">本月收入</div></div>
+    <div class="earn-card"><div class="earn-val" style="font-size:1.35rem">¥${totalAmt.toFixed(2)}</div><div class="earn-lbl">累计总收入</div></div>
+  `;
+}
+
+function renderEarnBars() {
+  const all = loadEarnings();
+  const bars = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const iso = d.toISOString().slice(0, 10);
+    const label = i === 0 ? '今天' : fmtDate(iso);
+    const amt = all.filter(e => e.date === iso).reduce((s, e) => s + e.amt, 0);
+    bars.push({ label, amt });
+  }
+  const max = Math.max(...bars.map(b => b.amt), 1);
+  const el = document.getElementById('earn-bars');
+  if (!bars.some(b => b.amt > 0)) {
+    el.innerHTML = '<div class="earn-empty">暂无数据</div>';
+    return;
+  }
+  el.innerHTML = '<div class="earn-bar-section">' +
+    bars.map(b => `
+      <div class="earn-bar-row">
+        <span class="earn-bar-lbl">${b.label}</span>
+        <div class="earn-bar-outer"><div class="earn-bar-inner" style="width:${(b.amt/max*100).toFixed(1)}%"></div></div>
+        <span class="earn-bar-val">${b.amt > 0 ? '¥' + b.amt.toFixed(0) : '—'}</span>
+      </div>`).join('') +
+    '</div>';
+}
+
+function initEarnings() {
+  const dateEl = document.getElementById('earn-date');
+  if (!dateEl.value) dateEl.value = todayStr();
+  renderEarnSummary();
+  renderEarnings();
+  renderEarnBars();
 }
 </script>
 </body>
